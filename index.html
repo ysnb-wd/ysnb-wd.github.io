@@ -5,486 +5,187 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>药神店铺 - 卡网店</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
-        body { 
-            padding: 20px; 
-            background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%); 
-            min-height: 100vh;
-        }
-        /* 可点击元素反馈 */
-        button, .card, .close-modal { 
-            cursor: pointer; 
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
-        }
-        button:hover { 
-            transform: translateY(-3px); 
-            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.2); 
-        }
-        .card:hover { 
-            transform: translateY(-5px); 
-            box-shadow: 0 12px 24px rgba(52, 152, 219, 0.15); 
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { padding: 20px; min-height: 100vh; }
 
-        /* 药神店铺标题 */
-        .shop-title { 
-            text-align: center; 
-            margin-bottom: 30px; 
-            font-size: 24px; 
-            color: #2980b9; 
-            text-shadow: 0 2px 4px rgba(52, 152, 219, 0.1); 
-            letter-spacing: 1px;
+        /* 1. 炫酷攻击文本样式（核心修改：动态效果+新文本） */
+        .attack-text {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            /* 渐变色背景+动态切换 */
+            background: linear-gradient(45deg, #e74c3c, #c0392b, #e67e22, #e74c3c);
+            background-size: 400% 400%;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 26px;
+            font-weight: 700;
+            text-align: center;
+            padding: 20px;
+            z-index: 999;
+            /* 文字发光效果 */
+            text-shadow: 0 0 10px rgba(255,255,255,0.8), 0 0 20px rgba(255,255,255,0.5);
+            /* 动态动画：背景流动+文本缩放抖动 */
+            animation: 
+                bgFlow 8s ease infinite, 
+                textPulse 2s ease-in-out infinite alternate,
+                textShake 3s ease-in-out infinite;
         }
-        .shop-title span { 
-            background: linear-gradient(90deg, #2980b9, #3498db); 
-            -webkit-background-clip: text; 
-            background-clip: text; 
-            color: transparent;
-        }
-
-        /* 卡片列表（医疗风） */
-        .card-list { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            gap: 25px; 
-            margin-bottom: 80px; 
-        }
-        .card { 
-            background: white; 
-            padding: 20px; 
-            border-radius: 15px; 
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.08); 
-            position: relative; 
-            overflow: hidden;
-        }
-        .card::before { 
-            content: ''; 
-            position: absolute; 
-            top: 0; 
-            left: 0; 
-            width: 4px; 
-            height: 100%; 
-            background: linear-gradient(180deg, #2980b9, #3498db); 
-        }
-        .card h3 { 
-            font-size: 17px; 
-            margin-bottom: 12px; 
-            color: #2c3e50; 
-            padding-left: 10px;
-        }
-        .card p { 
-            color: #e74c3c; 
-            font-weight: 600; 
-            margin-bottom: 15px; 
-            font-size: 16px; 
-            padding-left: 10px;
-        }
-        .add-btn { 
-            width: 100%; 
-            padding: 10px 0; 
-            border: none; 
-            border-radius: 30px; 
-            background: linear-gradient(90deg, #2980b9, #3498db); 
-            color: white; 
-            font-size: 15px; 
-            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15); 
-        }
-
-        /* 底部购物车按钮 */
-        .cart-btn { 
-            position: fixed; 
-            bottom: 25px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            padding: 14px 35px; 
-            border: none; 
-            border-radius: 30px; 
-            background: linear-gradient(90deg, #e74c3c, #c0392b); 
-            color: white; 
-            font-size: 17px; 
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2); 
-            font-weight: 500;
-        }
-
-        /* 弹窗通用样式（炫酷动画） */
-        .modal { 
-            position: fixed; 
-            top: 0; 
-            left: 0; 
-            width: 100%; 
-            height: 100%; 
-            background: rgba(0,0,0,0.5); 
-            display: none; 
-            justify-content: center; 
-            align-items: center; 
-            z-index: 100; 
-            backdrop-filter: blur(4px); 
-        }
-        .modal.show { 
-            display: flex; 
-            animation: fadeIn 0.3s ease;
-        }
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-        .modal-content { 
-            width: 90%; 
-            max-width: 420px; 
-            background: white; 
-            padding: 30px; 
-            border-radius: 20px; 
-            box-shadow: 0 8px 24px rgba(0,0,0,0.15); 
-            transform: translateY(20px); 
-            animation: slideUp 0.3s ease forwards;
-        }
-        @keyframes slideUp { to { transform: translateY(0); } }
-        .close-modal { 
-            position: absolute; 
-            top: 20px; 
-            right: 20px; 
-            font-size: 26px; 
-            color: white; 
-            width: 36px; 
-            height: 36px; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center; 
-            border-radius: 50%; 
-            background: rgba(0,0,0,0.3); 
-        }
-        .close-modal:hover { 
-            background: rgba(0,0,0,0.5); 
-            transform: rotate(90deg);
-        }
-        .modal h2 { 
-            margin-bottom: 25px; 
-            font-size: 20px; 
-            color: #2980b9; 
-            text-align: center; 
-            position: relative;
-        }
-        .modal h2::after { 
-            content: ''; 
-            position: absolute; 
-            bottom: -10px; 
-            left: 50%; 
-            transform: translateX(-50%); 
-            width: 50px; 
-            height: 3px; 
-            background: linear-gradient(90deg, #2980b9, #3498db); 
-            border-radius: 3px;
-        }
-
-        /* 详情弹窗 */
-        #detailModal p { 
-            line-height: 1.7; 
-            margin-bottom: 20px; 
-            color: #7f8c8d; 
-            font-size: 15px; 
-            padding: 0 5px;
-        }
-
-        /* 购物车弹窗 */
-        #cartModal .item { 
-            display: flex; 
-            justify-content: space-between; 
-            padding: 12px 0; 
-            border-bottom: 1px solid #f1f8e9; 
-            font-size: 15px; 
-        }
-        #cartModal .item span:first-child { 
-            color: #2c3e50; 
-            font-weight: 500;
-        }
-        #cartModal .item span:last-child { 
-            color: #e74c3c; 
-            font-weight: 600;
-        }
-        #cartModal .total { 
-            margin-top: 25px; 
-            text-align: right; 
-            font-weight: 600; 
-            font-size: 18px; 
-            color: #2c3e50; 
-        }
-        #checkoutBtn { 
-            width: 100%; 
-            margin-top: 25px; 
-            padding: 12px 0; 
-            border: none; 
-            border-radius: 30px; 
-            background: linear-gradient(90deg, #e74c3c, #c0392b); 
-            color: white; 
-            font-size: 16px; 
-            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
-        }
-
-        /* 付款弹窗（本地同目录付款码+炫酷边框） */
-        #payModal .pay-code-wrap { 
-            width: 90%; 
-            margin: 0 auto 25px; 
-            position: relative;
-        }
-        #payModal .pay-code { 
-            width: 100%; 
-            height: 240px; 
-            background: #f8f9fa; 
-            border-radius: 15px; 
-            border: 1px solid #e3f2fd; 
-            /* 固定读取本地同目录的pay-code.jpg，无需改路径 */
-            background-image: url('pay-code.jpg'); 
-            background-size: contain; 
-            background-repeat: no-repeat; 
-            background-position: center;
-        }
-        #payModal .pay-code-wrap::before { 
-            content: ''; 
-            position: absolute; 
-            top: -2px; 
-            left: -2px; 
-            right: -2px; 
-            bottom: -2px; 
-            background: linear-gradient(90deg, #2980b9, #3498db, #e74c3c); 
-            border-radius: 17px; 
-            z-index: -1; 
-            animation: rotate 8s linear infinite;
-        }
-        @keyframes rotate {
+        /* 背景渐变动效 */
+        @keyframes bgFlow {
             0% { background-position: 0% 50%; }
             50% { background-position: 100% 50%; }
             100% { background-position: 0% 50%; }
         }
-        #payModal .pay-tip { 
-            text-align: center; 
-            color: #7f8c8d; 
-            font-size: 14px; 
-            margin-bottom: 10px;
+        /* 文本缩放动效 */
+        @keyframes textPulse {
+            from { transform: scale(1); }
+            to { transform: scale(1.1); }
         }
-        #confirmBtn { 
-            width: 100%; 
-            margin-top: 20px; 
-            padding: 12px 0; 
-            border: none; 
-            border-radius: 30px; 
-            background: linear-gradient(90deg, #2980b9, #3498db); 
-            color: white; 
-            font-size: 16px; 
-            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        /* 文本轻微抖动（增强活力） */
+        @keyframes textShake {
+            0%, 100% { transform: rotate(0deg); }
+            25% { transform: rotate(-1deg); }
+            75% { transform: rotate(1deg); }
         }
 
-        /* 空购物车提示弹窗 */
-        #emptyTipModal .modal-content { 
-            text-align: center; 
-            padding: 35px 20px;
-        }
-        #emptyTipModal p { 
-            margin: 25px 0 30px; 
-            color: #7f8c8d; 
-            font-size: 15px; 
-            line-height: 1.6;
-        }
-        #emptyTipBtn { 
-            padding: 10px 25px; 
-            border: none; 
-            border-radius: 30px; 
-            background: linear-gradient(90deg, #2980b9, #3498db); 
-            color: white; 
-            font-size: 15px; 
-        }
+        /* 2. 卡网样式（保留精简版，不影响炫酷文本显示） */
+        .card-content { display: none; background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%); padding-bottom: 80px; }
+        .shop-title { text-align: center; margin-bottom: 25px; font-size: 22px; color: #2980b9; }
+        .shop-title span { background: linear-gradient(90deg, #2980b9, #3498db); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .card-list { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 30px; }
+        .card { background: white; padding: 18px; border-radius: 12px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); position: relative; }
+        .card::before { content: ''; position: absolute; top: 0; left: 0; width: 3px; height: 100%; background: linear-gradient(180deg, #2980b9, #3498db); }
+        .card h3 { font-size: 16px; margin-bottom: 10px; color: #2c3e50; padding-left: 8px; }
+        .card p { color: #e74c3c; font-weight: 600; margin-bottom: 12px; font-size: 15px; padding-left: 8px; }
+        .add-btn { width: 100%; padding: 9px 0; border: none; border-radius: 25px; background: linear-gradient(90deg, #2980b9, #3498db); color: white; font-size: 14px; cursor: pointer; }
+
+        /* 购物车按钮+弹窗（精简样式，不干扰核心效果） */
+        .cart-btn { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); padding: 12px 30px; border: none; border-radius: 25px; background: #e74c3c; color: white; font-size: 15px; cursor: pointer; }
+        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
+        .modal.show { display: flex; }
+        .modal-content { width: 90%; max-width: 380px; background: white; padding: 25px; border-radius: 10px; }
+        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; color: white; cursor: pointer; }
+        .modal h2 { margin-bottom: 20px; font-size: 18px; color: #2980b9; text-align: center; }
+        #cartModal .item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; font-size: 14px; }
+        #cartModal .total { margin-top: 15px; text-align: right; font-weight: 600; font-size: 15px; }
+        #checkoutBtn, #confirmBtn { width: 100%; margin-top: 15px; padding: 10px 0; border: none; border-radius: 25px; background: #e74c3c; color: white; font-size: 14px; cursor: pointer; }
+        #confirmBtn { background: #3498db; }
+        #payModal .pay-code { width: 100%; height: 200px; background: #f8f9fa; border-radius: 8px; margin: 10px 0; background-image: url('pay-code.jpg'); background-size: contain; background-repeat: no-repeat; background-position: center; }
+        #emptyTipModal .modal-content { text-align: center; }
+        #emptyTipModal p { margin: 15px 0; font-size: 14px; color: #666; }
+        #emptyTipBtn { padding: 8px 20px; border: none; border-radius: 25px; background: #3498db; color: white; font-size: 14px; cursor: pointer; }
     </style>
 </head>
 <body>
-    <!-- 药神店铺标题 -->
-    <h1 class="shop-title">「<span>药神店铺</span>」- 专属权益卡</h1>
+    <!-- 炫酷攻击文本（已修改内容：林然攻击我的服务器了，正在讨伐她中😋） -->
+    <div class="attack-text" id="attackText">林然攻击我的网站了，正在讨伐她中😋</div>
 
-    <!-- 卡片列表（外挂相关） -->
-    <div class="card-list">
-        <div class="card" data-id="1" data-name="彩虹月卡" data-price="59.9" data-desc="彩虹是一种mcmod">
-            <h3>彩虹月卡</h3>
-            <p>¥59.9</p>
-            <button class="add-btn">加入购物车</button>
-        </div>
-        <div class="card" data-id="2" data-name="彩虹年卡" data-price="299.0" data-desc="彩虹是一种mcmod">
-            <h3>彩虹年卡</h3>
-            <p>¥299.0</p>
-            <button class="add-btn">加入购物车</button>
-        </div>
-        <div class="card" data-id="3" data-name="彩虹季卡" data-price="89.5" data-desc="彩虹是一种mcmod">
-            <h3>彩虹季卡</h3>
-            <p>¥89.5</p>
-            <button class="add-btn">加入购物车</button>
-        </div>
-        <div class="card" data-id="4" data-name="彩虹永久卡" data-price="129.9" data-desc="彩虹是一种mcmod">
-            <h3>彩虹永久卡</h3>
-            <p>¥129.9</p>
-            <button class="add-btn">加入购物车</button>
-        </div>
-    </div>
-
-    <!-- 底部购物车按钮 -->
-    <button class="cart-btn" id="openCartBtn">购物车（0）</button>
-
-    <!-- 1. 卡片详情弹窗 -->
-    <div class="modal" id="detailModal">
-        <span class="close-modal" data-close="detailModal">&times;</span>
-        <div class="modal-content">
-            <h2 id="detailName"></h2>
-            <p id="detailPrice"></p>
-            <p id="detailDesc"></p>
-            <button class="add-btn" id="detailAddBtn">加入购物车</button>
-        </div>
-    </div>
-
-    <!-- 2. 购物车弹窗 -->
-    <div class="modal" id="cartModal">
-        <span class="close-modal" data-close="cartModal">&times;</span>
-        <div class="modal-content">
-            <h2>我的购物车</h2>
-            <div id="cartItems"></div>
-            <div class="total" id="cartTotal">总计：¥0.00</div>
-            <button id="checkoutBtn">去付款</button>
-        </div>
-    </div>
-
-    <!-- 3. 付款弹窗（本地同目录付款码） -->
-    <div class="modal" id="payModal">
-        <span class="close-modal" data-close="payModal">&times;</span>
-        <div class="modal-content">
-            <h2>请完成付款</h2>
-            <p class="pay-tip">扫码付款（微信支付）</p>
-            <div class="pay-code-wrap">
-                <div class="pay-code"></div>
+    <!-- 卡网内容（默认隐藏，控制中心“开”时显示） -->
+    <div class="card-content" id="cardContent">
+        <h1 class="shop-title">「<span>药神店铺</span>」- 彩虹权益卡</h1>
+        <div class="card-list">
+            <div class="card" data-id="1" data-name="彩虹月卡" data-price="59.9" data-desc="彩虹是一种mcmod">
+                <h3>彩虹月卡</h3>
+                <p>¥59.9</p>
+                <button class="add-btn">加入购物车</button>
             </div>
-            <button id="confirmBtn">确认已付款</button>
+            <div class="card" data-id="2" data-name="彩虹年卡" data-price="299.0" data-desc="彩虹是一种mcmod">
+                <h3>彩虹年卡</h3>
+                <p>¥299.0</p>
+                <button class="add-btn">加入购物车</button>
+            </div>
+            <div class="card" data-id="3" data-name="彩虹季卡" data-price="89.5" data-desc="彩虹是一种mcmod">
+                <h3>彩虹季卡</h3>
+                <p>¥89.5</p>
+                <button class="add-btn">加入购物车</button>
+            </div>
+            <div class="card" data-id="4" data-name="彩虹永久卡" data-price="129.9" data-desc="彩虹是一种mcmod">
+                <h3>彩虹永久卡</h3>
+                <p>¥129.9</p>
+                <button class="add-btn">加入购物车</button>
+            </div>
         </div>
+
+        <button class="cart-btn" id="openCartBtn">购物车（0）</button>
+        <div class="modal" id="detailModal"><span class="close-modal" data-close="detailModal">&times;</span><div class="modal-content"><h2 id="detailName"></h2><p id="detailPrice"></p><p id="detailDesc"></p><button class="add-btn">加入购物车</button></div></div>
+        <div class="modal" id="cartModal"><span class="close-modal" data-close="cartModal">&times;</span><div class="modal-content"><h2>我的购物车</h2><div id="cartItems"></div><div class="total" id="cartTotal">总计：¥0.00</div><button id="checkoutBtn">去付款</button></div></div>
+        <div class="modal" id="payModal"><span class="close-modal" data-close="payModal">&times;</span><div class="modal-content"><h2>扫码付款</h2><div class="pay-code"></div><button id="confirmBtn">确认已付款</button></div></div>
+        <div class="modal" id="emptyTipModal"><div class="modal-content"><h2>提示</h2><p>购物车为空，请先添加商品~</p><button id="emptyTipBtn">知道了</button></div></div>
     </div>
 
-    <!-- 4. 空购物车提示弹窗 -->
-    <div class="modal" id="emptyTipModal">
-        <div class="modal-content">
-            <h2>提示</h2>
-            <p>购物车还是空的哦~<br>先挑选心仪的权益卡加入购物车吧！</p>
-            <button id="emptyTipBtn">知道了</button>
-        </div>
-    </div>
-
-    <!-- 核心交互脚本（无任何拆分） -->
     <script>
-        let cart = [];
-        let currentCard = {};
+        // 核心联动逻辑不变：读取控制中心开关状态，决定显示炫酷文本/卡网
+        const indexMode = localStorage.getItem('indexMode') || 'showText'; // 默认“关”=显炫酷文本
+        const attackText = document.getElementById('attackText');
+        const cardContent = document.getElementById('cardContent');
 
-        // DOM元素统一获取
-        const cardList = document.querySelector('.card-list');
-        const openCartBtn = document.getElementById('openCartBtn');
-        const detailModal = document.getElementById('detailModal');
-        const cartModal = document.getElementById('cartModal');
-        const payModal = document.getElementById('payModal');
-        const emptyTipModal = document.getElementById('emptyTipModal');
-        const closeBtns = document.querySelectorAll('.close-modal');
-        const detailAddBtn = document.getElementById('detailAddBtn');
-        const checkoutBtn = document.getElementById('checkoutBtn');
-        const confirmBtn = document.getElementById('confirmBtn');
-        const emptyTipBtn = document.getElementById('emptyTipBtn');
-        const detailNameEl = document.getElementById('detailName');
-        const detailPriceEl = document.getElementById('detailPrice');
-        const detailDescEl = document.getElementById('detailDesc');
-        const cartItemsEl = document.getElementById('cartItems');
-        const cartTotalEl = document.getElementById('cartTotal');
+        if (indexMode === 'showCard') {
+            // 控制中心“开”=隐藏文本，显示卡网
+            attackText.style.display = 'none';
+            cardContent.style.display = 'block';
 
-        // 1. 卡片点击：区分详情/加购
-        cardList.addEventListener('click', (e) => {
-            const card = e.target.closest('.card');
-            if (!card) return;
+            // 卡网核心交互（保留精简版，不影响性能）
+            let cart = [];
+            const cardList = document.querySelector('.card-list');
+            const openCartBtn = document.getElementById('openCartBtn');
+            const cartModal = document.getElementById('cartModal');
+            const payModal = document.getElementById('payModal');
+            const emptyTipModal = document.getElementById('emptyTipModal');
+            const closeBtns = document.querySelectorAll('.close-modal');
+            const checkoutBtn = document.getElementById('checkoutBtn');
+            const confirmBtn = document.getElementById('confirmBtn');
+            const emptyTipBtn = document.getElementById('emptyTipBtn');
+            const cartItems = document.getElementById('cartItems');
+            const cartTotal = document.getElementById('cartTotal');
+            const detailModal = document.getElementById('detailModal');
+            const detailName = document.getElementById('detailName');
+            const detailPrice = document.getElementById('detailPrice');
+            const detailDesc = document.getElementById('detailDesc');
 
-            if (e.target.classList.contains('add-btn')) {
-                addToCart(card.dataset);
-                return;
-            }
-
-            currentCard = {
-                id: card.dataset.id,
-                name: card.dataset.name,
-                price: parseFloat(card.dataset.price),
-                desc: card.dataset.desc
-            };
-            detailNameEl.textContent = currentCard.name;
-            detailPriceEl.textContent = `¥${currentCard.price.toFixed(2)}`;
-            detailDescEl.textContent = currentCard.desc;
-            detailModal.classList.add('show');
-        });
-
-        // 2. 详情弹窗加购
-        detailAddBtn.addEventListener('click', () => {
-            addToCart(currentCard);
-            detailModal.classList.remove('show');
-        });
-
-        // 3. 所有弹窗关闭
-        closeBtns.forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.getElementById(btn.dataset.close).classList.remove('show');
+            // 卡片点击：加购/详情
+            cardList.addEventListener('click', (e) => {
+                const card = e.target.closest('.card');
+                if (!card) return;
+                if (e.target.classList.contains('add-btn')) {
+                    cart.push({ name: card.dataset.name, price: parseFloat(card.dataset.price) });
+                    openCartBtn.textContent = `购物车（${cart.length}）`;
+                    alert(`「${card.dataset.name}」已加入购物车`);
+                    return;
+                }
+                detailName.textContent = card.dataset.name;
+                detailPrice.textContent = `¥${card.dataset.price}`;
+                detailDesc.textContent = card.dataset.desc;
+                detailModal.classList.add('show');
             });
-        });
 
-        // 4. 空购物车提示关闭
-        emptyTipBtn.addEventListener('click', () => {
-            emptyTipModal.classList.remove('show');
-        });
-
-        // 5. 购物车按钮（带反馈）
-        openCartBtn.addEventListener('click', () => {
-            openCartBtn.style.transform = 'translateX(-50%) scale(1.1)';
-            setTimeout(() => openCartBtn.style.transform = 'translateX(-50%) scale(1)', 200);
-
-            if (cart.length === 0) {
-                emptyTipModal.classList.add('show');
-                return;
-            }
-
-            setTimeout(() => {
-                renderCart();
+            // 购物车按钮
+            openCartBtn.addEventListener('click', () => {
+                if (cart.length === 0) { emptyTipModal.classList.add('show'); return; }
+                cartItems.innerHTML = '';
+                let total = 0;
+                cart.forEach((item, i) => {
+                    total += item.price;
+                    cartItems.innerHTML += `<div class="item"><span>${i+1}. ${item.name}</span><span>¥${item.price.toFixed(2)}</span></div>`;
+                });
+                cartTotal.textContent = `总计：¥${total.toFixed(2)}`;
                 cartModal.classList.add('show');
-            }, 50);
-        });
-
-        // 6. 去付款
-        checkoutBtn.addEventListener('click', () => {
-            cartModal.classList.remove('show');
-            payModal.classList.add('show');
-        });
-
-        // 7. 确认付款
-        confirmBtn.addEventListener('click', () => {
-            alert(`付款成功！已为你激活${cart.length}项权益，请加客服o，客服qq为2708860272~`);
-            payModal.classList.remove('show');
-            cart = [];
-            updateCartBtn();
-            renderCart();
-        });
-
-        // 核心函数：加购
-        function addToCart(cardData) {
-            cart.push({ name: cardData.name, price: parseFloat(cardData.price) });
-            updateCartBtn();
-            alert(`「${cardData.name}」已加入购物车！\n当前共${cart.length}项权益卡`);
-        }
-
-        // 核心函数：更新购物车按钮
-        function updateCartBtn() {
-            openCartBtn.textContent = `购物车（${cart.length}）`;
-            openCartBtn.style.boxShadow = '0 6px 16px rgba(231, 76, 60, 0.3)';
-            setTimeout(() => openCartBtn.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.2)', 300);
-        }
-
-        // 核心函数：渲染购物车
-        function renderCart() {
-            cartItemsEl.innerHTML = '';
-            let total = 0;
-            cart.forEach((item, i) => {
-                total += item.price;
-                const itemEl = document.createElement('div');
-                itemEl.className = 'item';
-                itemEl.innerHTML = `<span>${i+1}. ${item.name}</span><span>¥${item.price.toFixed(2)}</span>`;
-                cartItemsEl.appendChild(itemEl);
             });
-            cartTotalEl.textContent = `总计：¥${total.toFixed(2)}`;
+
+            // 付款/关闭弹窗逻辑
+            checkoutBtn.addEventListener('click', () => { cartModal.classList.remove('show'); payModal.classList.add('show'); });
+            confirmBtn.addEventListener('click', () => {
+                alert(`付款成功！请加客服QQ：2708860272`);
+                payModal.classList.remove('show');
+                cart = [];
+                openCartBtn.textContent = '购物车（0）';
+            });
+            closeBtns.forEach(btn => btn.addEventListener('click', () => document.getElementById(btn.dataset.close).classList.remove('show')));
+            emptyTipBtn.addEventListener('click', () => emptyTipModal.classList.remove('show'));
         }
     </script>
 </body>
