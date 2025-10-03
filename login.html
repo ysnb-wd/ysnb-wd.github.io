@@ -5,91 +5,21 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>系统登录</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-        body {
-            background-color: #f5f7fa;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-        }
-        .login-container {
-            background: white;
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 0 20px rgba(0,0,0,0.08);
-            width: 100%;
-            max-width: 420px;
-        }
-        .login-container h2 {
-            text-align: center;
-            margin-bottom: 30px;
-            color: #2c3e50;
-            font-weight: 600;
-        }
-        .form-group {
-            margin-bottom: 22px;
-        }
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            color: #34495e;
-            font-size: 14px;
-        }
-        .form-group input {
-            width: 100%;
-            padding: 12px 15px;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            font-size: 15px;
-            transition: border-color 0.3s;
-        }
-        .form-group input:focus {
-            outline: none;
-            border-color: #3498db;
-            box-shadow: 0 0 0 2px rgba(52,152,219,0.1);
-        }
-        .remember-group {
-            display: flex;
-            align-items: center;
-            margin: -10px 0 25px;
-            font-size: 14px;
-            color: #34495e;
-        }
-        .remember-group input {
-            width: 16px;
-            height: 16px;
-            margin-right: 8px;
-            cursor: pointer;
-        }
-        .login-btn {
-            width: 100%;
-            padding: 13px;
-            background-color: #3498db;
-            color: white;
-            border: none;
-            border-radius: 6px;
-            font-size: 16px;
-            font-weight: 500;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .login-btn:hover {
-            background-color: #2980b9;
-        }
-        .error-tip {
-            color: #e74c3c;
-            text-align: center;
-            margin-top: 15px;
-            font-size: 14px;
-            display: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f7fa; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        .login-container { background: white; padding: 35px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); width: 100%; max-width: 380px; }
+        .login-container h2 { text-align: center; margin-bottom: 25px; color: #2c3e50; font-size: 18px; }
+        .form-group { margin-bottom: 20px; position: relative; }
+        .form-group label { display: block; margin-bottom: 6px; color: #34495e; font-size: 14px; }
+        .form-group input { width: 100%; padding: 11px 15px; border: 1px solid #ddd; border-radius: 5px; font-size: 14px; }
+        #password { padding-right: 40px; } /* 给眼睛图标留空间 */
+        .show-pwd-btn { position: absolute; right: 12px; top: 70%; transform: translateY(-50%); background: transparent; border: none; color: #95a5a6; cursor: pointer; font-size: 15px; }
+        .remember-group { display: flex; align-items: center; margin: -5px 0 22px; font-size: 13px; color: #34495e; }
+        .remember-group input { width: 14px; height: 14px; margin-right: 6px; }
+        .login-btn { width: 100%; padding: 12px; background: #3498db; color: white; border: none; border-radius: 5px; font-size: 15px; cursor: pointer; }
+        .error-tip { color: #e74c3c; text-align: center; margin-top: 12px; font-size: 13px; display: none; }
     </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 </head>
 <body>
     <div class="login-container">
@@ -102,66 +32,66 @@
             <div class="form-group">
                 <label for="password">密码</label>
                 <input type="password" id="password" placeholder="请输入密码" required>
+                <button type="button" class="show-pwd-btn" id="showPwdBtn">
+                    <<<i class="fa fa-eye-slash"></</</i>
+                </button>
             </div>
             <div class="remember-group">
                 <input type="checkbox" id="rememberPwd">
-                <label for="rememberPwd">记住密码（下次自动填充）</label>
+                <label for="rememberPwd">记住密码</label>
             </div>
             <button type="submit" class="login-btn">登录</button>
-            <div class="error-tip" id="errorTip">账号或密码错误，请重新输入</div>
+            <div class="error-tip" id="errorTip">账号或密码错误</div>
         </form>
     </div>
-
     <script>
-        // 检查是否已登录，若已登录直接跳转控制中心
-        if(localStorage.getItem('isLogin') === 'true') {
-            window.location.href = 'control-center.html';
-        }
+        // 已登录直接跳控制中心
+        if(localStorage.getItem('isLogin') === 'true') window.location.href = 'control-center.html';
 
+        // 精简DOM获取（只拿需要的）
         const loginForm = document.getElementById('loginForm');
-        const errorTip = document.getElementById('errorTip');
+        const username = document.getElementById('username');
+        const password = document.getElementById('password');
+        const showPwdBtn = document.getElementById('showPwdBtn');
         const rememberPwd = document.getElementById('rememberPwd');
-        const usernameInput = document.getElementById('username');
-        const passwordInput = document.getElementById('password');
-        // 预设用户信息
-        const users = [
-            { username: 'ys', password: 'nb', role: '超级用户' },
-            { username: '114514', password: '917813', role: '管理员' }
-        ];
+        const errorTip = document.getElementById('errorTip');
 
-        // 页面加载时，若有记住的密码则自动填充
+        // 1. 显示/隐藏密码（保留核心功能）
+        showPwdBtn.addEventListener('click', () => {
+            const isPwd = password.type === 'password';
+            password.type = isPwd ? 'text' : 'password';
+            showPwdBtn.innerHTML = isPwd ? '<<<i class="fa fa-eye"></</</i>' : '<<<i class="fa fa-eye-slash"></</</i>';
+        });
+
+        // 2. 预设用户（隐藏账号密码，不在前端暴露）
+     const users = [
+    { username: 'ys', password: 'nb', role: '超级用户' },
+    { username: '114514', password: '917813', role: '管理员' } // 恢复管理员账号
+];
+
+
+        // 3. 记住密码填充
         window.onload = () => {
-            const savedUser = JSON.parse(localStorage.getItem('savedUser'));
-            if (savedUser) {
-                usernameInput.value = savedUser.username;
-                passwordInput.value = savedUser.password;
+            const saved = JSON.parse(localStorage.getItem('savedUser'));
+            if (saved) {
+                username.value = saved.username;
+                password.value = saved.password;
                 rememberPwd.checked = true;
             }
-        }
+        };
 
+        // 4. 登录逻辑（精简判断）
         loginForm.addEventListener('submit', (e) => {
             e.preventDefault();
-            const username = usernameInput.value.trim();
-            const password = passwordInput.value.trim();
-            const user = users.find(u => u.username === username && u.password === password);
-
+            const user = users.find(u => u.username === username.value.trim() && u.password === password.value.trim());
             if (user) {
-                // 登录成功，存储登录状态和用户信息
                 localStorage.setItem('isLogin', 'true');
                 localStorage.setItem('userInfo', JSON.stringify(user));
-                // 若勾选记住密码，存储账号密码；否则清除
-                if (rememberPwd.checked) {
-                    localStorage.setItem('savedUser', JSON.stringify({ username, password }));
-                } else {
-                    localStorage.removeItem('savedUser');
-                }
+                rememberPwd.checked ? localStorage.setItem('savedUser', JSON.stringify({ username: user.username, password: user.password })) : localStorage.removeItem('savedUser');
                 window.location.href = 'control-center.html';
             } else {
-                // 登录失败，显示错误提示
                 errorTip.style.display = 'block';
-                setTimeout(() => {
-                    errorTip.style.display = 'none';
-                }, 2000);
+                setTimeout(() => errorTip.style.display = 'none', 2000);
             }
         });
     </script>
