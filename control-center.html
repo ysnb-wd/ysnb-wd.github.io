@@ -5,291 +5,80 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>系统控制中心</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Arial', sans-serif;
-        }
-        body {
-            background-color: #f5f7fa;
-            min-height: 100vh;
-            display: flex;
-            flex-direction: column;
-        }
-        /* 顶部导航栏 */
-        .header {
-            background-color: #2c3e50;
-            color: white;
-            padding: 18px 30px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
-            z-index: 10;
-        }
-        .header h1 {
-            font-size: 22px;
-            font-weight: 600;
-        }
-        .user-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-        .user-role {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-        .logout-btn {
-            padding: 8px 16px;
-            background-color: #e74c3c;
-            color: white;
-            border: none;
-            border-radius: 4px;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background-color 0.3s;
-        }
-        .logout-btn:hover {
-            background-color: #c0392b;
-        }
-        /* 主体内容区：左侧菜单+右侧内容 */
-        .main-container {
-            display: flex;
-            flex: 1;
-        }
-        /* 左侧菜单 */
-        .sidebar {
-            width: 240px;
-            background-color: white;
-            box-shadow: 2px 0 5px rgba(0,0,0,0.03);
-            padding: 25px 0;
-            height: calc(100vh - 64px);
-            position: sticky;
-            top: 64px;
-            overflow-y: auto;
-        }
-        .menu-title {
-            padding: 0 25px 12px;
-            font-size: 13px;
-            color: #95a5a6;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        .menu-list {
-            list-style: none;
-        }
-        .menu-item {
-            margin-bottom: 2px;
-        }
-        .menu-link {
-            display: flex;
-            align-items: center;
-            padding: 12px 25px;
-            color: #3498db;
-            text-decoration: none;
-            font-size: 15px;
-            transition: all 0.3s;
-        }
-        .menu-link:hover, .menu-link.active {
-            background-color: #f1f5f9;
-            color: #3498db;
-            border-left: 3px solid #3498db;
-        }
-        .menu-link i {
-            margin-right: 12px;
-            font-size: 16px;
-        }
-        /* 右侧内容区 */
-        .content {
-            flex: 1;
-            padding: 30px;
-            overflow-y: auto;
-            height: calc(100vh - 64px);
-        }
-        .page-title {
-            font-size: 20px;
-            color: #2c3e50;
-            margin-bottom: 25px;
-            font-weight: 600;
-        }
-        .card {
-            background: white;
-            border-radius: 10px;
-            padding: 25px;
-            box-shadow: 0 0 15px rgba(0,0,0,0.05);
-            margin-bottom: 25px;
-        }
-        .card h3 {
-            color: #2c3e50;
-            margin-bottom: 15px;
-            font-size: 17px;
-            font-weight: 600;
-        }
-        .card p {
-            color: #34495e;
-            line-height: 1.6;
-            font-size: 15px;
-            margin-bottom: 12px;
-        }
-        .card-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-top: 15px;
-        }
-        .card-table th, .card-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid #ecf0f1;
-        }
-        .card-table th {
-            background-color: #f8f9fa;
-            color: #7f8c8d;
-            font-size: 14px;
-            font-weight: 500;
-        }
-        .card-table td {
-            color: #34495e;
-            font-size: 14px;
-        }
-        /* 隐藏管理员无权限的菜单 */
-        .admin-hide {
-            display: none;
-        }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
+        body { background: #f5f7fa; min-height: 100vh; display: flex; flex-direction: column; }
+        .header { background: #2c3e50; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+        .header h1 { font-size: 18px; font-weight: 600; }
+        .user-info { display: flex; align-items: center; gap: 12px; }
+        .user-role { font-size: 13px; opacity: 0.9; }
+        .logout-btn { padding: 6px 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; }
+
+        /* 核心：Index控制开关（只保留关键样式） */
+        .index-switch { margin: 15px 25px; display: flex; gap: 8px; }
+        .switch-btn { padding: 7px 18px; border: 1px solid #3498db; border-radius: 4px; background: white; color: #3498db; cursor: pointer; font-size: 14px; }
+        .switch-btn.active { background: #3498db; color: white; }
+        .switch-tip { margin: 0 25px 15px; color: #666; font-size: 12px; }
+
+        /* 精简主体：只保留左侧菜单+右侧提示 */
+        .main-container { display: flex; flex: 1; }
+        .sidebar { width: 200px; background: white; box-shadow: 2px 0 3px rgba(0,0,0,0.03); padding: 20px 0; height: calc(100vh - 100px); position: sticky; top: 80px; }
+        .menu-title { padding: 0 20px 10px; font-size: 12px; color: #95a5a6; text-transform: uppercase; }
+        .menu-list { list-style: none; }
+        .menu-link { display: flex; align-items: center; padding: 10px 20px; color: #3498db; text-decoration: none; font-size: 14px; }
+        .menu-link.active { background: #f1f5f9; border-left: 3px solid #3498db; }
+        .menu-link i { margin-right: 10px; font-size: 15px; }
+
+        .content { flex: 1; padding: 0 25px 25px; }
+        .page-title { font-size: 16px; color: #2c3e50; margin-bottom: 20px; }
+        .tip-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
+        .tip-card p { color: #34495e; font-size: 14px; line-height: 1.5; margin-bottom: 8px; }
     </style>
-    <!-- 引入图标库 -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 </head>
 <body>
     <div class="header">
-        <h1>系统控制中心</h1>
+        <h1>控制中心</h1>
         <div class="user-info">
             <span id="userRole" class="user-role"></span>
-            <button class="logout-btn" id="logoutBtn">退出登录</button>
+            <button class="logout-btn" id="logoutBtn">退出</button>
         </div>
     </div>
 
-    <div class="main-container">
-        <!-- 左侧菜单 -->
-        <div class="sidebar">
-            <div class="menu-title">核心功能</div>
-            <ul class="menu-list">
-                <li class="menu-item">
-                    <a href="#dashboard" class="menu-link active">
-                        <<i class="fa fa-tachometer"></</i>
-                        <span>控制台</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#user-manage" class="menu-link">
-                        <<i class="fa fa-users"></</i>
-                        <span>用户管理</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#system-setting" class="menu-link">
-                        <<i class="fa fa-cog"></</i>
-                        <span>系统设置</span>
-                    </a>
-                </li>
-                <li class="menu-item admin-hide" id="super-menu">
-                    <a href="#super-manage" class="menu-link">
-                        <<i class="fa fa-shield"></</i>
-                        <span>超级管理</span>
-                    </a>
-                </li>
-            </ul>
+    <!-- 核心：Index显示控制开关（“关”=index显文本，“开”=index显卡网） -->
+    <div class="index-switch">
+        <button class="switch-btn" id="switchShowCard">开（Index显卡网）</button>
+        <button class="switch-btn active" id="switchShowText">关（Index显文本）</button>
+    </div>
+    <p class="switch-tip">提示：切换后打开index.html立即生效 | 文本内容：林然攻击我的服务器了，正在讨伐中</p>
 
-            <div class="menu-title">数据中心</div>
+    <div class="main-container">
+        <div class="sidebar">
+            <div class="menu-title">功能</div>
             <ul class="menu-list">
-                <li class="menu-item">
-                    <a href="#data-stat" class="menu-link">
-                        <<i class="fa fa-bar-chart"></</i>
-                        <span>数据统计</span>
-                    </a>
-                </li>
-                <li class="menu-item">
-                    <a href="#log-record" class="menu-link">
-                        <<i class="fa fa-history"></</i>
-                        <span>操作日志</span>
-                    </a>
-                </li>
+                <li><a href="#dashboard" class="menu-link active"><<<i class="fa fa-tachometer"></</</i>控制台</a></li>
+                <li><a href="#index-control" class="menu-link"><<<i class="fa fa-home"></</</i>Index控制</a></li>
             </ul>
         </div>
-
-        <!-- 右侧内容 -->
         <div class="content">
-            <h2 class="page-title">控制台首页</h2>
-
-            <div class="card">
-                <h3>欢迎信息</h3>
-                <p>您好，<span id="welcomeUser" style="color: #3498db; font-weight: 500;"></span>！当前系统运行正常，上次登录时间：<span id="lastLogin">2024-10-03 10:00:00</span></p>
-                <p>提示：请定期修改账号密码，保障系统安全；执行批量操作前请做好数据备份。</p>
-            </div>
-
-            <div class="card">
-                <h3>系统状态</h3>
-                <table class="card-table">
-                    <thead>
-                        <tr>
-                            <<th>项目</</th>
-                            <<th>状态</</th>
-                            <<th>版本</</th>
-                            <<th>更新时间</</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <tr>
-                            <td>核心服务</td>
-                            <td><span style="color: #2ecc71;"><<i class="fa fa-check-circle"></</i> 运行中</span></td>
-                            <td>V2.1.0</td>
-                            <td>2024-09-30</td>
-                        </tr>
-                        <tr>
-                            <td>数据库</td>
-                            <td><span style="color: #2ecc71;"><<i class="fa fa-check-circle"></</i> 连接正常</span></td>
-                            <td>MySQL 8.0</td>
-                            <td>2024-09-28</td>
-                        </tr>
-                        <tr>
-                            <td>安全防护</td>
-                            <td><span style="color: #2ecc71;"><<i class="fa fa-check-circle"></</i> 已开启</span></td>
-                            <td>V1.5.2</td>
-                            <td>2024-10-01</td>
-                        </tr>
-                    </tbody>
-                </table>
-            </div>
-
-            <div class="card admin-hide" id="super-card">
-                <h3>超级用户专属功能</h3>
-                <p>1. 可批量管理所有用户权限，包括新增/删除管理员账号；</p>
-                <p>2. 支持系统核心参数配置，如接口超时时间、日志留存天数等；</p>
-                <p>3. 可查看完整系统日志，包括敏感操作审计记录。</p>
+            <h2 class="page-title">操作指引</h2>
+            <div class="tip-card">
+                <p>1. 点击顶部开关设置index显示模式；</p>
+                <p>2. 所有打开此浏览器的用户，访问index都会按当前模式显示；</p>
+                <p>3. 退出登录不影响开关状态。</p>
             </div>
         </div>
     </div>
 
     <script>
-        // 验证登录状态，未登录则重定向到login.html（核心修改点）
+        // 未登录跳登录页（精简判断）
         const isLogin = localStorage.getItem('isLogin');
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
-        if (!isLogin || isLogin !== 'true' || !userInfo) {
-            window.location.href = 'login.html';
-        }
+        if (!isLogin || isLogin !== 'true' || !userInfo) window.location.href = 'login.html';
 
-        // 显示用户信息
-        document.getElementById('userRole').textContent = `当前身份：${userInfo.role}（${userInfo.username}）`;
-        document.getElementById('welcomeUser').textContent = `${userInfo.role} ${userInfo.username}`;
+        // 1. 显示用户身份（精简）
+        document.getElementById('userRole').textContent = `${userInfo.role}（${userInfo.username}）`;
 
-        // 权限控制：管理员隐藏超级用户专属菜单和内容
-        if (userInfo.role === '管理员') {
-            document.getElementById('super-menu').classList.add('admin-hide');
-            document.getElementById('super-card').classList.add('admin-hide');
-        }
-
-        // 退出登录功能，跳转路径改为login.html（核心修改点）
+        // 2. 退出登录
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('isLogin');
             localStorage.removeItem('userInfo');
@@ -297,19 +86,32 @@
             window.location.href = 'login.html';
         });
 
-        // 菜单点击高亮
-        const menuLinks = document.querySelectorAll('.menu-link');
-        menuLinks.forEach(link => {
+        // 3. 核心：开关逻辑（存储状态到localStorage，控制index显示）
+        const switchShowCard = document.getElementById('switchShowCard');
+        const switchShowText = document.getElementById('switchShowText');
+
+        // 初始化开关状态（默认“关”=显文本）
+        if (localStorage.getItem('indexMode') === 'showCard') switchShowCard.classList.add('active'), switchShowText.classList.remove('active');
+
+        // 点击“开”=index显卡网
+        switchShowCard.addEventListener('click', () => {
+            switchShowCard.classList.add('active');
+            switchShowText.classList.remove('active');
+            localStorage.setItem('indexMode', 'showCard');
+        });
+
+        // 点击“关”=index显文本（核心需求）
+        switchShowText.addEventListener('click', () => {
+            switchShowText.classList.add('active');
+            switchShowCard.classList.remove('active');
+            localStorage.setItem('indexMode', 'showText');
+        });
+
+        // 4. 菜单高亮（精简）
+        document.querySelectorAll('.menu-link').forEach(link => {
             link.addEventListener('click', (e) => {
-                menuLinks.forEach(item => item.classList.remove('active'));
+                document.querySelectorAll('.menu-link').forEach(item => item.classList.remove('active'));
                 e.target.closest('.menu-link').classList.add('active');
-                const targetId = e.target.closest('.menu-link').getAttribute('href').slice(1);
-                document.querySelector('.page-title').textContent = 
-                    targetId === 'dashboard' ? '控制台首页' : 
-                    targetId === 'user-manage' ? '用户管理' :
-                    targetId === 'system-setting' ? '系统设置' :
-                    targetId === 'super-manage' ? '超级管理' :
-                    targetId === 'data-stat' ? '数据统计' : '操作日志';
             });
         });
     </script>
