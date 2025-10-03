@@ -3,64 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>药神店铺 - 卡网店</title>
+    <title>药神店铺 - 彩虹权益卡网</title>
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: "PingFang SC", sans-serif; }
-        body { padding: 20px; min-height: 100vh; position: relative; overflow-x: hidden; }
+        body { min-height: 100vh; padding: 20px 0; position: relative; overflow-x: hidden; }
 
-        /* 1. 攻击文本：流光3D动画 */
-        .attack-text {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(45deg, #ef4444, #f97316, #ef4444);
-            background-size: 400% 400%;
-            color: white;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 26px;
-            font-weight: 700;
-            text-align: center;
-            padding: 20px;
-            z-index: 999;
-            text-shadow: 0 0 15px rgba(255,255,255,0.9), 0 0 30px rgba(239, 68, 68, 0.7);
-            animation: 
-                bgFlow 6s ease infinite, 
-                textPulse 3s ease-in-out infinite alternate,
-                textRotate 10s ease-in-out infinite;
-        }
-        @keyframes bgFlow { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
-        @keyframes textPulse { from { transform: scale(1); } to { transform: scale(1.1); } }
-        @keyframes textRotate { 0%, 100% { transform: rotate(0deg) scale(1); } 25% { transform: rotate(-1deg) scale(1.05); } 75% { transform: rotate(1deg) scale(1.05); } }
-
-        /* 2. 卡网背景：渐变+粒子装饰 */
+        /* 炫酷背景：渐变+粒子装饰 */
         .card-content {
-            display: none;
             background: linear-gradient(135deg, #0f172a, #1e293b);
-            padding-bottom: 80px;
             min-height: 100vh;
+            padding-bottom: 80px;
             position: relative;
         }
-        /* 卡网粒子装饰 */
-        .card-particles {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            opacity: 0.3;
-        }
+        /* 粒子背景容器 */
+        #cardParticles { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; opacity: 0.3; }
 
         /* 店铺标题：流光渐变 */
         .shop-title {
             text-align: center;
             margin-bottom: 30px;
             font-size: 24px;
-            padding-top: 20px;
+            padding-top: 25px;
             position: relative;
             z-index: 10;
         }
@@ -73,7 +36,7 @@
         }
         @keyframes titleShine { from { background-position: 0% center; } to { background-position: 100% center; } }
 
-        /* 卡片列表：3D网格布局 */
+        /* 卡片列表：自适应网格 */
         .card-list {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
@@ -350,19 +313,19 @@
         #detailPrice { color: #f87171 !important; font-weight: 600; }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
-    <!-- 粒子背景插件 -->
+    <!-- 粒子背景插件（炫酷动态效果） -->
     <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
-    <!-- 1. 攻击文本（默认显示） -->
-    <div class="attack-text" id="attackText">林然攻击我的服务器了，正在讨伐她中😋</div>
+    <!-- 卡网主体（默认显示，无文本切换） -->
+    <div class="card-content">
+        <!-- 粒子背景（动态交互） -->
+        <div id="cardParticles"></div>
 
-    <!-- 2. 卡网内容（URL参数为card时显示） -->
-    <div class="card-content" id="cardContent">
-        <!-- 卡网粒子背景 -->
-        <div class="card-particles" id="cardParticles"></div>
-
+        <!-- 店铺标题 -->
         <h1 class="shop-title">「<span>药神店铺</span>」- 彩虹权益卡</h1>
+
+        <!-- 卡片列表 -->
         <div class="card-list">
             <div class="card" data-id="1" data-name="彩虹月卡" data-price="59.9" data-desc="彩虹是一种mcmod，月卡享全功能解锁+每日福利">
                 <h3>彩虹月卡</h3>
@@ -386,7 +349,9 @@
             </div>
         </div>
 
+        <!-- 底部购物车按钮 -->
         <button class="cart-btn" id="openCartBtn">购物车（0）</button>
+
         <!-- 详情弹窗 -->
         <div class="modal" id="detailModal">
             <span class="close-modal" data-close="detailModal">&times;</span>
@@ -397,6 +362,7 @@
                 <button class="add-btn">加入购物车</button>
             </div>
         </div>
+
         <!-- 购物车弹窗 -->
         <div class="modal" id="cartModal">
             <span class="close-modal" data-close="cartModal">&times;</span>
@@ -407,6 +373,7 @@
                 <button id="checkoutBtn">去付款</button>
             </div>
         </div>
+
         <!-- 付款弹窗 -->
         <div class="modal" id="payModal">
             <span class="close-modal" data-close="payModal">&times;</span>
@@ -419,7 +386,8 @@
                 <button id="confirmBtn">确认已付款</button>
             </div>
         </div>
-        <!-- 空购物车提示 -->
+
+        <!-- 空购物车提示弹窗 -->
         <div class="modal" id="emptyTipModal">
             <div class="modal-content">
                 <h2>提示</h2>
@@ -430,142 +398,150 @@
     </div>
 
     <script>
-        // 核心：根据URL参数显示卡网/文本（跨浏览器同步）
-        const urlParams = new URLSearchParams(window.location.search);
-        const indexMode = urlParams.get('mode') || 'text'; // text=显文本，card=显卡网
-        const attackText = document.getElementById('attackText');
-        const cardContent = document.getElementById('cardContent');
-
-        if (indexMode === 'card') {
-            // 显卡网：初始化粒子背景+显示卡网内容
-            attackText.style.display = 'none';
-            cardContent.style.display = 'block';
-
-            // 初始化卡网粒子背景
-            particlesJS('cardParticles', {
-                "particles": {
-                    "number": { "value": 50, "density": { "enable": true, "value_area": 800 } },
-                    "color": { "value": "#818cf8" },
-                    "shape": { "type": "circle" },
-                    "opacity": { "value": 0.3, "random": true },
-                    "size": { "value": 2, "random": true },
-                    "line_linked": {
-                        "enable": true,
-                        "distance": 120,
-                        "color": "#38bdf8",
-                        "opacity": 0.2,
-                        "width": 1
-                    },
-                    "move": {
-                        "enable": true,
-                        "speed": 0.5,
-                        "direction": "none",
-                        "random": true,
-                        "straight": false,
-                        "out_mode": "out",
-                        "bounce": false
-                    }
+        // 1. 初始化粒子背景（炫酷动态效果）
+        particlesJS('cardParticles', {
+            "particles": {
+                "number": { "value": 50, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#818cf8" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.3, "random": true },
+                "size": { "value": 2, "random": true },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 120,
+                    "color": "#38bdf8",
+                    "opacity": 0.2,
+                    "width": 1
                 },
-                "interactivity": {
-                    "detect_on": "canvas",
-                    "events": {
-                        "onhover": { "enable": true, "mode": "grab" },
-                        "onclick": { "enable": true, "mode": "push" },
-                        "resize": true
-                    },
-                    "modes": {
-                        "grab": { "distance": 100, "line_linked": { "opacity": 0.3 } },
-                        "push": { "particles_nb": 3 }
-                    }
-                },
-                "retina_detect": true
-            });
-
-            // 卡网核心交互（保留全功能）
-            let cart = [];
-            const cardList = document.querySelector('.card-list');
-            const openCartBtn = document.getElementById('openCartBtn');
-            const cartModal = document.getElementById('cartModal');
-            const payModal = document.getElementById('payModal');
-            const emptyTipModal = document.getElementById('emptyTipModal');
-            const closeBtns = document.querySelectorAll('.close-modal');
-            const checkoutBtn = document.getElementById('checkoutBtn');
-            const confirmBtn = document.getElementById('confirmBtn');
-            const emptyTipBtn = document.getElementById('emptyTipBtn');
-            const cartItems = document.getElementById('cartItems');
-            const cartTotal = document.getElementById('cartTotal');
-            const detailModal = document.getElementById('detailModal');
-            const detailName = document.getElementById('detailName');
-            const detailPrice = document.getElementById('detailPrice');
-            const detailDesc = document.getElementById('detailDesc');
-
-            // 卡片点击：加购/详情
-            cardList.addEventListener('click', (e) => {
-                const card = e.target.closest('.card');
-                if (!card) return;
-                if (e.target.classList.contains('add-btn')) {
-                    const cardData = card.dataset;
-                    cart.push({ name: cardData.name, price: parseFloat(cardData.price) });
-                    openCartBtn.textContent = `购物车（${cart.length}）`;
-                    alert(`「${cardData.name}」已加入购物车！`);
-                    return;
+                "move": {
+                    "enable": true,
+                    "speed": 0.5,
+                    "direction": "none",
+                    "random": true,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false
                 }
-                // 详情弹窗
-                detailName.textContent = card.dataset.name;
-                detailPrice.textContent = `¥${card.dataset.price}`;
-                detailDesc.textContent = card.dataset.desc;
-                detailModal.classList.add('show');
-            });
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": { "enable": true, "mode": "grab" },
+                    "onclick": { "enable": true, "mode": "push" },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": { "distance": 100, "line_linked": { "opacity": 0.3 } },
+                    "push": { "particles_nb": 3 }
+                }
+            },
+            "retina_detect": true
+        });
 
-            // 详情弹窗加购
-            detailModal.querySelector('.add-btn').addEventListener('click', () => {
-                cart.push({ name: detailName.textContent, price: parseFloat(detailPrice.textContent.slice(1)) });
+        // 2. 卡网核心交互逻辑（完整功能）
+        let cart = [];
+        // DOM元素获取
+        const cardList = document.querySelector('.card-list');
+        const openCartBtn = document.getElementById('openCartBtn');
+        const cartModal = document.getElementById('cartModal');
+        const payModal = document.getElementById('payModal');
+        const emptyTipModal = document.getElementById('emptyTipModal');
+        const closeBtns = document.querySelectorAll('.close-modal');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const emptyTipBtn = document.getElementById('emptyTipBtn');
+        const cartItems = document.getElementById('cartItems');
+        const cartTotal = document.getElementById('cartTotal');
+        const detailModal = document.getElementById('detailModal');
+        const detailName = document.getElementById('detailName');
+        const detailPrice = document.getElementById('detailPrice');
+        const detailDesc = document.getElementById('detailDesc');
+        const detailAddBtn = detailModal.querySelector('.add-btn');
+
+        // 卡片点击：加购/详情
+        cardList.addEventListener('click', (e) => {
+            const card = e.target.closest('.card');
+            if (!card) return;
+
+            // 点击“加入购物车”
+            if (e.target.classList.contains('add-btn')) {
+                const cardData = card.dataset;
+                cart.push({ 
+                    name: cardData.name, 
+                    price: parseFloat(cardData.price) 
+                });
+                // 更新购物车按钮数量
                 openCartBtn.textContent = `购物车（${cart.length}）`;
-                alert(`「${detailName.textContent}」已加入购物车！`);
-                detailModal.classList.remove('show');
-            });
+                alert(`「${cardData.name}」已加入购物车！`);
+                return;
+            }
 
-            // 购物车按钮
-            openCartBtn.addEventListener('click', () => {
-                if (cart.length === 0) {
-                    emptyTipModal.classList.add('show');
-                    return;
-                }
-                // 渲染购物车
-                cartItems.innerHTML = '';
-                let total = 0;
-                cart.forEach((item, i) => {
-                    total += item.price;
-                    cartItems.innerHTML += `<div class="item"><span>${i+1}. ${item.name}</span><span>¥${item.price.toFixed(2)}</span></div>`;
-                });
-                cartTotal.textContent = `总计：¥${total.toFixed(2)}`;
-                cartModal.classList.add('show');
-            });
+            // 点击卡片其他区域：打开详情弹窗
+            detailName.textContent = card.dataset.name;
+            detailPrice.textContent = `¥${card.dataset.price}`;
+            detailDesc.textContent = card.dataset.desc;
+            detailModal.classList.add('show');
+        });
 
-            // 去付款
-            checkoutBtn.addEventListener('click', () => {
-                cartModal.classList.remove('show');
-                payModal.classList.add('show');
+        // 详情弹窗：加入购物车
+        detailAddBtn.addEventListener('click', () => {
+            cart.push({ 
+                name: detailName.textContent, 
+                price: parseFloat(detailPrice.textContent.slice(1)) 
             });
+            openCartBtn.textContent = `购物车（${cart.length}）`;
+            alert(`「${detailName.textContent}」已加入购物车！`);
+            detailModal.classList.remove('show');
+        });
 
-            // 确认付款
-            confirmBtn.addEventListener('click', () => {
-                alert(`付款成功！已为你激活${cart.length}项权益，请加客服QQ：2708860272`);
-                payModal.classList.remove('show');
-                cart = [];
-                openCartBtn.textContent = '购物车（0）';
-            });
+        // 打开购物车按钮
+        openCartBtn.addEventListener('click', () => {
+            // 购物车为空：显示提示
+            if (cart.length === 0) {
+                emptyTipModal.classList.add('show');
+                return;
+            }
 
-            // 关闭弹窗
-            closeBtns.forEach(btn => {
-                btn.addEventListener('click', () => {
-                    document.getElementById(btn.dataset.close).classList.remove('show');
-                });
+            // 渲染购物车列表+计算总计
+            cartItems.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, index) => {
+                total += item.price;
+                const itemEl = document.createElement('div');
+                itemEl.className = 'item';
+                itemEl.innerHTML = `<span>${index+1}. ${item.name}</span><span>¥${item.price.toFixed(2)}</span>`;
+                cartItems.appendChild(itemEl);
             });
-            emptyTipBtn.addEventListener('click', () => {
-                emptyTipModal.classList.remove('show');
+            cartTotal.textContent = `总计：¥${total.toFixed(2)}`;
+            cartModal.classList.add('show');
+        });
+
+        // 去付款
+        checkoutBtn.addEventListener('click', () => {
+            cartModal.classList.remove('show');
+            payModal.classList.add('show');
+        });
+
+        // 确认已付款
+        confirmBtn.addEventListener('click', () => {
+            alert(`付款成功！已为你激活${cart.length}项权益，请加客服QQ：2708860272`);
+            // 重置购物车
+            payModal.classList.remove('show');
+            cart = [];
+            openCartBtn.textContent = '购物车（0）';
+        });
+
+        // 关闭弹窗（通用逻辑）
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById(btn.dataset.close).classList.remove('show');
             });
-        }
+        });
+
+        // 空购物车提示：关闭按钮
+        emptyTipBtn.addEventListener('click', () => {
+            emptyTipModal.classList.remove('show');
+        });
     </script>
 </body>
 </html>
