@@ -2,83 +2,302 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>系统控制中心</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; }
-        body { background: #f5f7fa; min-height: 100vh; display: flex; flex-direction: column; }
-        .header { background: #2c3e50; color: white; padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-        .header h1 { font-size: 18px; font-weight: 600; }
-        .user-info { display: flex; align-items: center; gap: 12px; }
-        .user-role { font-size: 13px; opacity: 0.9; }
-        .logout-btn { padding: 6px 12px; background: #e74c3c; color: white; border: none; border-radius: 4px; font-size: 13px; cursor: pointer; }
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: "PingFang SC", sans-serif; }
+        body { background: #0f172a; min-height: 100vh; display: flex; flex-direction: column; position: relative; }
+        /* 粒子背景容器 */
+        #particles-js { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 0; }
 
-        /* 核心：Index控制开关（只保留关键样式） */
-        .index-switch { margin: 15px 25px; display: flex; gap: 8px; }
-        .switch-btn { padding: 7px 18px; border: 1px solid #3498db; border-radius: 4px; background: white; color: #3498db; cursor: pointer; font-size: 14px; }
-        .switch-btn.active { background: #3498db; color: white; }
-        .switch-tip { margin: 0 25px 15px; color: #666; font-size: 12px; }
+        .header {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            color: white;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            z-index: 10;
+        }
+        .header h1 { font-size: 20px; font-weight: 600; background: linear-gradient(90deg, #38bdf8, #818cf8); -webkit-background-clip: text; background-clip: text; color: transparent; }
+        .user-info { display: flex; align-items: center; gap: 15px; }
+        .user-role { font-size: 14px; opacity: 0.9; }
+        /* 退出按钮：渐变边框 */
+        .logout-btn {
+            padding: 8px 16px;
+            background: transparent;
+            color: #38bdf8;
+            border: 1px solid #38bdf8;
+            border-radius: 6px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .logout-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 100%;
+            background: rgba(56, 189, 248, 0.1);
+            transition: width 0.3s ease;
+        }
+        .logout-btn:hover {
+            color: white;
+            background: rgba(56, 189, 248, 0.2);
+        }
+        .logout-btn:hover::after { width: 100%; }
 
-        /* 精简主体：只保留左侧菜单+右侧提示 */
-        .main-container { display: flex; flex: 1; }
-        .sidebar { width: 200px; background: white; box-shadow: 2px 0 3px rgba(0,0,0,0.03); padding: 20px 0; height: calc(100vh - 100px); position: sticky; top: 80px; }
-        .menu-title { padding: 0 20px 10px; font-size: 12px; color: #95a5a6; text-transform: uppercase; }
+        /* 核心开关：3D切换效果 */
+        .switch-wrapper {
+            margin: 20px 25px;
+            padding: 20px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            z-index: 10;
+            position: relative;
+        }
+        .switch-title {
+            font-size: 16px;
+            color: #e0e7ff;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+        .index-switch {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 15px;
+        }
+        .switch-btn {
+            padding: 10px 25px;
+            border: none;
+            border-radius: 8px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+        .switch-btn:not(.active) {
+            background: rgba(79, 70, 229, 0.2);
+            color: #c7d2fe;
+        }
+        .switch-btn.active {
+            background: linear-gradient(90deg, #38bdf8, #818cf8);
+            color: white;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.3);
+        }
+        /* 同步URL显示：流光边框 */
+        .sync-url {
+            padding: 15px;
+            background: rgba(79, 70, 229, 0.1);
+            border-radius: 8px;
+            border: 1px solid rgba(129, 140, 248, 0.3);
+            position: relative;
+            overflow: hidden;
+        }
+        .sync-url::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(129, 140, 248, 0.2), transparent);
+            animation: urlFlow 3s infinite;
+        }
+        @keyframes urlFlow {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(100%); }
+        }
+        .url-label {
+            font-size: 12px;
+            color: #94a3b8;
+            margin-bottom: 8px;
+        }
+        .url-text {
+            font-size: 14px;
+            color: #e0e7ff;
+            word-break: break-all;
+        }
+
+        /* 主体内容：玻璃拟态 */
+        .main-container {
+            display: flex;
+            flex: 1;
+            padding: 0 25px 25px;
+            z-index: 10;
+            position: relative;
+        }
+        .sidebar {
+            width: 220px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            padding: 25px 0;
+            height: calc(100vh - 220px);
+            position: sticky;
+            top: 20px;
+        }
+        .menu-title {
+            padding: 0 25px 12px;
+            font-size: 12px;
+            color: #94a3b8;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
         .menu-list { list-style: none; }
-        .menu-link { display: flex; align-items: center; padding: 10px 20px; color: #3498db; text-decoration: none; font-size: 14px; }
-        .menu-link.active { background: #f1f5f9; border-left: 3px solid #3498db; }
-        .menu-link i { margin-right: 10px; font-size: 15px; }
+        .menu-link {
+            display: flex;
+            align-items: center;
+            padding: 12px 25px;
+            color: #c7d2fe;
+            text-decoration: none;
+            font-size: 15px;
+            transition: all 0.3s ease;
+        }
+        .menu-link.active {
+            background: rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            border-left: 3px solid #38bdf8;
+        }
+        .menu-link i { margin-right: 12px; font-size: 16px; }
+        .menu-link:hover:not(.active) { background: rgba(79, 70, 229, 0.1); }
 
-        .content { flex: 1; padding: 0 25px 25px; }
-        .page-title { font-size: 16px; color: #2c3e50; margin-bottom: 20px; }
-        .tip-card { background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 5px rgba(0,0,0,0.05); }
-        .tip-card p { color: #34495e; font-size: 14px; line-height: 1.5; margin-bottom: 8px; }
+        .content {
+            flex: 1;
+            padding: 0 0 0 20px;
+        }
+        .page-title {
+            font-size: 18px;
+            color: #e0e7ff;
+            margin-bottom: 20px;
+            padding-top: 5px;
+        }
+        .tip-card {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
+            padding: 20px;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            color: #e0e7ff;
+        }
+        .tip-card p {
+            font-size: 14px;
+            line-height: 1.6;
+            margin-bottom: 10px;
+        }
+        .tip-card span { color: #38bdf8; font-weight: 500; }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
+    <!-- 粒子背景插件（炫酷动态效果） -->
+    <script src="https://cdn.jsdelivr.net/particles.js/2.0.0/particles.min.js"></script>
 </head>
 <body>
+    <!-- 粒子背景 -->
+    <div id="particles-js"></div>
+
     <div class="header">
-        <h1>控制中心</h1>
+        <h1>系统控制中心</h1>
         <div class="user-info">
             <span id="userRole" class="user-role"></span>
-            <button class="logout-btn" id="logoutBtn">退出</button>
+            <button class="logout-btn" id="logoutBtn">退出登录</button>
         </div>
     </div>
 
-    <!-- 核心：Index显示控制开关（“关”=index显文本，“开”=index显卡网） -->
-    <div class="index-switch">
-        <button class="switch-btn" id="switchShowCard">开（Index显卡网）</button>
-        <button class="switch-btn active" id="switchShowText">关（Index显文本）</button>
+    <!-- 核心：开关+URL同步（所有人打开同一链接显示一致） -->
+    <div class="switch-wrapper">
+        <h3 class="switch-title">Index显示控制（所有浏览器同步）</h3>
+        <div class="index-switch">
+            <button class="switch-btn" id="switchShowCard">开（显卡网）</button>
+            <button class="switch-btn active" id="switchShowText">关（显文本）</button>
+        </div>
+        <!-- 同步URL：复制给别人，打开就和你显示一致 -->
+        <div class="sync-url">
+            <div class="url-label">同步链接（复制给他人）：</div>
+            <div class="url-text" id="syncUrl">index.html?mode=text</div>
+        </div>
     </div>
-    <p class="switch-tip">提示：切换后打开index.html立即生效 | 文本内容：林然攻击我的服务器了，正在讨伐中</p>
 
     <div class="main-container">
         <div class="sidebar">
-            <div class="menu-title">功能</div>
+            <div class="menu-title">功能菜单</div>
             <ul class="menu-list">
-                <li><a href="#dashboard" class="menu-link active"><<<i class="fa fa-tachometer"></</</i>控制台</a></li>
-                <li><a href="#index-control" class="menu-link"><<<i class="fa fa-home"></</</i>Index控制</a></li>
+                <li><a href="#dashboard" class="menu-link active"><<i class="fa fa-tachometer"></</i>控制台</a></li>
+                <li><a href="#index-control" class="menu-link"><<i class="fa fa-home"></</i>Index控制</a></li>
+                <li><a href="#user-manage" class="menu-link"><<i class="fa fa-users"></</i>用户管理</a></li>
             </ul>
         </div>
         <div class="content">
             <h2 class="page-title">操作指引</h2>
             <div class="tip-card">
-                <p>1. 点击顶部开关设置index显示模式；</p>
-                <p>2. 所有打开此浏览器的用户，访问index都会按当前模式显示；</p>
-                <p>3. 退出登录不影响开关状态。</p>
+                <p>1. 点击顶部开关设置显示模式，<span>URL会自动更新</span>；</p>
+                <p>2. 复制“同步链接”给他人，对方打开后会和你显示完全一致；</p>
+                <p>3. 模式说明：<span>开=显示彩虹卡网</span> | <span>关=显示攻击文本</span>；</p>
+                <p>4. 无需登录即可访问index.html，链接同步状态永久有效。</p>
             </div>
         </div>
     </div>
 
     <script>
-        // 未登录跳登录页（精简判断）
+        // 初始化粒子背景（炫酷动态效果）
+        particlesJS('particles-js', {
+            "particles": {
+                "number": { "value": 80, "density": { "enable": true, "value_area": 800 } },
+                "color": { "value": "#818cf8" },
+                "shape": { "type": "circle" },
+                "opacity": { "value": 0.5, "random": true },
+                "size": { "value": 3, "random": true },
+                "line_linked": {
+                    "enable": true,
+                    "distance": 150,
+                    "color": "#38bdf8",
+                    "opacity": 0.2,
+                    "width": 1
+                },
+                "move": {
+                    "enable": true,
+                    "speed": 1,
+                    "direction": "none",
+                    "random": true,
+                    "straight": false,
+                    "out_mode": "out",
+                    "bounce": false
+                }
+            },
+            "interactivity": {
+                "detect_on": "canvas",
+                "events": {
+                    "onhover": { "enable": true, "mode": "grab" },
+                    "onclick": { "enable": true, "mode": "push" },
+                    "resize": true
+                },
+                "modes": {
+                    "grab": { "distance": 140, "line_linked": { "opacity": 0.5 } },
+                    "push": { "particles_nb": 4 }
+                }
+            },
+            "retina_detect": true
+        });
+
+        // 未登录跳登录页
         const isLogin = localStorage.getItem('isLogin');
         const userInfo = JSON.parse(localStorage.getItem('userInfo'));
         if (!isLogin || isLogin !== 'true' || !userInfo) window.location.href = 'login.html';
 
-        // 1. 显示用户身份（精简）
+        // 显示用户身份
         document.getElementById('userRole').textContent = `${userInfo.role}（${userInfo.username}）`;
 
-        // 2. 退出登录
+        // 退出登录
         document.getElementById('logoutBtn').addEventListener('click', () => {
             localStorage.removeItem('isLogin');
             localStorage.removeItem('userInfo');
@@ -86,28 +305,49 @@
             window.location.href = 'login.html';
         });
 
-        // 3. 核心：开关逻辑（存储状态到localStorage，控制index显示）
+        // 核心：URL参数同步逻辑（解决跨浏览器显示不一致）
         const switchShowCard = document.getElementById('switchShowCard');
         const switchShowText = document.getElementById('switchShowText');
+        const syncUrlEl = document.getElementById('syncUrl');
+        const baseUrl = 'index.html'; // 基础链接
 
-        // 初始化开关状态（默认“关”=显文本）
-        if (localStorage.getItem('indexMode') === 'showCard') switchShowCard.classList.add('active'), switchShowText.classList.remove('active');
+        // 1. 初始化：从URL读取状态（优先URL参数，覆盖localStorage）
+        function initSwitchFromUrl() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const indexMode = urlParams.get('mode') || 'text'; // text=关显文本，card=开显卡网
+            
+            if (indexMode === 'card') {
+                switchShowCard.classList.add('active');
+                switchShowText.classList.remove('active');
+                syncUrlEl.textContent = `${baseUrl}?mode=card`;
+            } else {
+                switchShowText.classList.add('active');
+                switchShowCard.classList.remove('active');
+                syncUrlEl.textContent = `${baseUrl}?mode=text`;
+            }
+        }
+        initSwitchFromUrl();
 
-        // 点击“开”=index显卡网
+        // 2. 点击“开（显卡网）”：更新URL为?mode=card
         switchShowCard.addEventListener('click', () => {
             switchShowCard.classList.add('active');
             switchShowText.classList.remove('active');
-            localStorage.setItem('indexMode', 'showCard');
+            const newUrl = `${baseUrl}?mode=card`;
+            syncUrlEl.textContent = newUrl;
+            // 更新浏览器URL，不刷新页面
+            window.history.pushState({}, '', newUrl);
         });
 
-        // 点击“关”=index显文本（核心需求）
+        // 3. 点击“关（显文本）”：更新URL为?mode=text
         switchShowText.addEventListener('click', () => {
             switchShowText.classList.add('active');
             switchShowCard.classList.remove('active');
-            localStorage.setItem('indexMode', 'showText');
+            const newUrl = `${baseUrl}?mode=text`;
+            syncUrlEl.textContent = newUrl;
+            window.history.pushState({}, '', newUrl);
         });
 
-        // 4. 菜单高亮（精简）
+        // 菜单高亮
         document.querySelectorAll('.menu-link').forEach(link => {
             link.addEventListener('click', (e) => {
                 document.querySelectorAll('.menu-link').forEach(item => item.classList.remove('active'));
