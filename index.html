@@ -3,199 +3,519 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>完整卡网界面（含付款页+全交互）</title>
+    <title>药神店铺 - 卡网店</title>
     <style>
-        * { margin: 0; padding: 0; box-sizing: border-box; font-family: Arial, sans-serif; transition: background .3s, color .3s; }
-        /* 基础样式 */
-        body { background-color: #f5f5f5; padding: 15px; color: #333; }
-        .header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
-        .search-bar { width: 80%; padding: 12px 15px; border: 1px solid #ddd; border-radius: 8px; font-size: 16px; background: white; }
-        .theme-btn { padding: 8px 12px; border: 1px solid #ddd; border-radius: 8px; background: white; cursor: pointer; }
-        .category { display: flex; gap: 10px; margin: 15px 0; overflow-x: auto; padding-bottom: 5px; }
-        .category-btn { padding: 8px 15px; background: white; border: 1px solid #ddd; border-radius: 20px; font-size: 14px; white-space: nowrap; cursor: pointer; }
-        .category-btn.active { background: #007bff; color: white; border-color: #007bff; }
-        .card-list { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 60px; }
-        .card { background: white; border-radius: 10px; padding: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); cursor: pointer; }
-        .card-img { width: 100%; height: 100px; background: #eee; border-radius: 8px; margin-bottom: 10px; }
-        .card-title { font-size: 15px; font-weight: 600; margin-bottom: 5px; }
-        .card-price { color: #ff4400; font-weight: bold; font-size: 16px; margin-bottom: 8px; }
-        .add-cart { width: 100%; padding: 8px 0; background: #007bff; color: white; border: none; border-radius: 6px; cursor: pointer; font-size: 14px; }
-        
-        /* 弹窗通用样式 */
-        .modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); display: none; justify-content: center; align-items: center; z-index: 100; }
-        .modal-content { width: 90%; background: white; border-radius: 10px; padding: 20px; max-height: 80vh; overflow-y: auto; }
-        .close-modal { position: absolute; top: 15px; right: 15px; font-size: 24px; cursor: pointer; color: white; }
-        
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { 
+            padding: 20px; 
+            background: linear-gradient(135deg, #e6f7ff 0%, #f0f9ff 100%); 
+            min-height: 100vh;
+        }
+        /* 可点击元素反馈 */
+        button, .card, .close-modal { 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); 
+        }
+        button:hover { 
+            transform: translateY(-3px); 
+            box-shadow: 0 8px 16px rgba(52, 152, 219, 0.2); 
+        }
+        .card:hover { 
+            transform: translateY(-5px); 
+            box-shadow: 0 12px 24px rgba(52, 152, 219, 0.15); 
+        }
+
+        /* 药神店铺标题 */
+        .shop-title { 
+            text-align: center; 
+            margin-bottom: 30px; 
+            font-size: 24px; 
+            color: #2980b9; 
+            text-shadow: 0 2px 4px rgba(52, 152, 219, 0.1); 
+            letter-spacing: 1px;
+        }
+        .shop-title span { 
+            background: linear-gradient(90deg, #2980b9, #3498db); 
+            -webkit-background-clip: text; 
+            background-clip: text; 
+            color: transparent;
+        }
+
+        /* 卡片列表（医疗风） */
+        .card-list { 
+            display: grid; 
+            grid-template-columns: 1fr 1fr; 
+            gap: 25px; 
+            margin-bottom: 80px; 
+        }
+        .card { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 15px; 
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.08); 
+            position: relative; 
+            overflow: hidden;
+        }
+        .card::before { 
+            content: ''; 
+            position: absolute; 
+            top: 0; 
+            left: 0; 
+            width: 4px; 
+            height: 100%; 
+            background: linear-gradient(180deg, #2980b9, #3498db); 
+        }
+        .card h3 { 
+            font-size: 17px; 
+            margin-bottom: 12px; 
+            color: #2c3e50; 
+            padding-left: 10px;
+        }
+        .card p { 
+            color: #e74c3c; 
+            font-weight: 600; 
+            margin-bottom: 15px; 
+            font-size: 16px; 
+            padding-left: 10px;
+        }
+        .add-btn { 
+            width: 100%; 
+            padding: 10px 0; 
+            border: none; 
+            border-radius: 30px; 
+            background: linear-gradient(90deg, #2980b9, #3498db); 
+            color: white; 
+            font-size: 15px; 
+            box-shadow: 0 2px 8px rgba(52, 152, 219, 0.15); 
+        }
+
+        /* 底部购物车按钮 */
+        .cart-btn { 
+            position: fixed; 
+            bottom: 25px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            padding: 14px 35px; 
+            border: none; 
+            border-radius: 30px; 
+            background: linear-gradient(90deg, #e74c3c, #c0392b); 
+            color: white; 
+            font-size: 17px; 
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2); 
+            font-weight: 500;
+        }
+
+        /* 弹窗通用样式（炫酷动画） */
+        .modal { 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            width: 100%; 
+            height: 100%; 
+            background: rgba(0,0,0,0.5); 
+            display: none; 
+            justify-content: center; 
+            align-items: center; 
+            z-index: 100; 
+            backdrop-filter: blur(4px); 
+        }
+        .modal.show { 
+            display: flex; 
+            animation: fadeIn 0.3s ease;
+        }
+        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        .modal-content { 
+            width: 90%; 
+            max-width: 420px; 
+            background: white; 
+            padding: 30px; 
+            border-radius: 20px; 
+            box-shadow: 0 8px 24px rgba(0,0,0,0.15); 
+            transform: translateY(20px); 
+            animation: slideUp 0.3s ease forwards;
+        }
+        @keyframes slideUp { to { transform: translateY(0); } }
+        .close-modal { 
+            position: absolute; 
+            top: 20px; 
+            right: 20px; 
+            font-size: 26px; 
+            color: white; 
+            width: 36px; 
+            height: 36px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            border-radius: 50%; 
+            background: rgba(0,0,0,0.3); 
+        }
+        .close-modal:hover { 
+            background: rgba(0,0,0,0.5); 
+            transform: rotate(90deg);
+        }
+        .modal h2 { 
+            margin-bottom: 25px; 
+            font-size: 20px; 
+            color: #2980b9; 
+            text-align: center; 
+            position: relative;
+        }
+        .modal h2::after { 
+            content: ''; 
+            position: absolute; 
+            bottom: -10px; 
+            left: 50%; 
+            transform: translateX(-50%); 
+            width: 50px; 
+            height: 3px; 
+            background: linear-gradient(90deg, #2980b9, #3498db); 
+            border-radius: 3px;
+        }
+
         /* 详情弹窗 */
-        .detail-img { width: 100%; height: 180px; background: #eee; border-radius: 8px; margin-bottom: 15px; }
-        .detail-desc { margin: 10px 0; line-height: 1.5; font-size: 14px; }
-        
+        #detailModal p { 
+            line-height: 1.7; 
+            margin-bottom: 20px; 
+            color: #7f8c8d; 
+            font-size: 15px; 
+            padding: 0 5px;
+        }
+
         /* 购物车弹窗 */
-        .cart-modal .modal-content { padding-bottom: 60px; }
-        .cart-item { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #eee; }
-        .cart-total { margin-top: 15px; text-align: right; font-size: 16px; font-weight: 600; }
-        .checkout-btn { position: absolute; bottom: 20px; left: 50%; transform: translateX(-50%); width: 80%; padding: 12px 0; background: #ff4400; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
-        
-        /* 付款界面（同级目录路径） */
-        .pay-modal h3 { text-align: center; margin-bottom: 20px; }
-        .pay-code-container { width: 80%; margin: 0 auto; background: white; padding: 15px; border-radius: 10px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); text-align: center; }
-        .pay-code-img { width: 100%; height: auto; border-radius: 8px; background: #f8f8f8 url('pay-code.jpg') center/contain no-repeat; min-height: 250px; }
-        .pay-note { margin-top: 15px; font-size: 14px; color: #666; line-height: 1.5; }
-        .confirm-pay-btn { width: 100%; margin-top: 20px; padding: 12px 0; background: #007bff; color: white; border: none; border-radius: 8px; cursor: pointer; font-size: 16px; }
-        
-        /* 底部购物车栏 */
-        .cart-bar { position: fixed; bottom: 0; left: 0; width: 100%; background: white; padding: 12px 15px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 -2px 5px rgba(0,0,0,0.1); z-index: 90; cursor: pointer; }
-        .cart-count { background: #ff4400; color: white; width: 24px; height: 24px; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 12px; position: relative; top: -10px; left: -5px; }
-        .cart-btn { padding: 8px 20px; background: #ff4400; color: white; border: none; border-radius: 6px; cursor: pointer; }
-        
-        /* 深色模式适配 */
-        body.dark { background-color: #1a1a1a; color: #eee; }
-        body.dark .search-bar, body.dark .theme-btn, body.dark .category-btn, body.dark .card, body.dark .modal-content, body.dark .cart-bar, body.dark .pay-code-container { background: #2d2d2d; border-color: #444; }
-        body.dark .category-btn.active { background: #0095ff; }
-        body.dark .cart-item { border-bottom-color: #444; }
-        body.dark .pay-note { color: #bbb; }
-        body.dark .pay-code-img { background-color: #333; }
+        #cartModal .item { 
+            display: flex; 
+            justify-content: space-between; 
+            padding: 12px 0; 
+            border-bottom: 1px solid #f1f8e9; 
+            font-size: 15px; 
+        }
+        #cartModal .item span:first-child { 
+            color: #2c3e50; 
+            font-weight: 500;
+        }
+        #cartModal .item span:last-child { 
+            color: #e74c3c; 
+            font-weight: 600;
+        }
+        #cartModal .total { 
+            margin-top: 25px; 
+            text-align: right; 
+            font-weight: 600; 
+            font-size: 18px; 
+            color: #2c3e50; 
+        }
+        #checkoutBtn { 
+            width: 100%; 
+            margin-top: 25px; 
+            padding: 12px 0; 
+            border: none; 
+            border-radius: 30px; 
+            background: linear-gradient(90deg, #e74c3c, #c0392b); 
+            color: white; 
+            font-size: 16px; 
+            box-shadow: 0 4px 12px rgba(231, 76, 60, 0.2);
+        }
+
+        /* 付款弹窗（本地同目录付款码+炫酷边框） */
+        #payModal .pay-code-wrap { 
+            width: 90%; 
+            margin: 0 auto 25px; 
+            position: relative;
+        }
+        #payModal .pay-code { 
+            width: 100%; 
+            height: 240px; 
+            background: #f8f9fa; 
+            border-radius: 15px; 
+            border: 1px solid #e3f2fd; 
+            /* 固定读取本地同目录的pay-code.jpg，无需改路径 */
+            background-image: url('pay-code.jpg'); 
+            background-size: contain; 
+            background-repeat: no-repeat; 
+            background-position: center;
+        }
+        #payModal .pay-code-wrap::before { 
+            content: ''; 
+            position: absolute; 
+            top: -2px; 
+            left: -2px; 
+            right: -2px; 
+            bottom: -2px; 
+            background: linear-gradient(90deg, #2980b9, #3498db, #e74c3c); 
+            border-radius: 17px; 
+            z-index: -1; 
+            animation: rotate 8s linear infinite;
+        }
+        @keyframes rotate {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+        #payModal .pay-tip { 
+            text-align: center; 
+            color: #7f8c8d; 
+            font-size: 14px; 
+            margin-bottom: 10px;
+        }
+        #confirmBtn { 
+            width: 100%; 
+            margin-top: 20px; 
+            padding: 12px 0; 
+            border: none; 
+            border-radius: 30px; 
+            background: linear-gradient(90deg, #2980b9, #3498db); 
+            color: white; 
+            font-size: 16px; 
+            box-shadow: 0 4px 12px rgba(52, 152, 219, 0.2);
+        }
+
+        /* 空购物车提示弹窗 */
+        #emptyTipModal .modal-content { 
+            text-align: center; 
+            padding: 35px 20px;
+        }
+        #emptyTipModal p { 
+            margin: 25px 0 30px; 
+            color: #7f8c8d; 
+            font-size: 15px; 
+            line-height: 1.6;
+        }
+        #emptyTipBtn { 
+            padding: 10px 25px; 
+            border: none; 
+            border-radius: 30px; 
+            background: linear-gradient(90deg, #2980b9, #3498db); 
+            color: white; 
+            font-size: 15px; 
+        }
     </style>
 </head>
 <body>
-    <!-- 顶部栏 -->
-    <div class="header">
-        <input type="text" class="search-bar" placeholder="搜索卡片...">
-        <button class="theme-btn" id="themeBtn">深色模式</button>
-    </div>
+    <!-- 药神店铺标题 -->
+    <h1 class="shop-title">「<span>药神店铺</span>」- 专属权益卡</h1>
 
-    <!-- 分类栏 -->
-    <div class="category">
-        <button class="category-btn active">全部</button>
-        <button class="category-btn">游戏</button>
-        <button class="category-btn">影视</button>
-        <button class="category-btn">会员</button>
-        <button class="category-btn">其他</button>
-    </div>
-
-    <!-- 卡片列表 -->
-    <div class="card-list" id="cardList">
-        <div class="card" data-id="1" data-title="某游戏月卡" data-price="25.8" data-desc="包含30天游戏会员权益，每日可领100钻石+专属道具，支持所有服务器兑换。">
-            <div class="card-img"></div>
-            <div class="card-title">某游戏月卡</div>
-            <div class="card-price">¥25.8</div>
-            <button class="add-cart">加入购物车</button>
+    <!-- 卡片列表（外挂相关） -->
+    <div class="card-list">
+        <div class="card" data-id="1" data-name="彩虹月卡" data-price="59.9" data-desc="彩虹是一种mcmod">
+            <h3>彩虹月卡</h3>
+            <p>¥59.9</p>
+            <button class="add-btn">加入购物车</button>
         </div>
-        <div class="card" data-id="2" data-title="视频平台年卡" data-price="99.0" data-desc="全年无广告观看，支持4K画质，可同时登录3台设备，包含专属超前点播权益。">
-            <div class="card-img"></div>
-            <div class="card-title">视频平台年卡</div>
-            <div class="card-price">¥99.0</div>
-            <button class="add-cart">加入购物车</button>
+        <div class="card" data-id="2" data-name="彩虹年卡" data-price="299.0" data-desc="彩虹是一种mcmod">
+            <h3>彩虹年卡</h3>
+            <p>¥299.0</p>
+            <button class="add-btn">加入购物车</button>
         </div>
-        <div class="card" data-id="3" data-title="音乐会员季卡" data-price="35.5" data-desc="3个月无损音质收听，免费下载歌曲，包含付费曲库全解锁+MV高清观看权益。">
-            <div class="card-img"></div>
-            <div class="card-title">音乐会员季卡</div>
-            <div class="card-price">¥35.5</div>
-            <button class="add-cart">加入购物车</button>
+        <div class="card" data-id="3" data-name="彩虹季卡" data-price="89.5" data-desc="彩虹是一种mcmod">
+            <h3>彩虹季卡</h3>
+            <p>¥89.5</p>
+            <button class="add-btn">加入购物车</button>
         </div>
-        <div class="card" data-id="4" data-title="云盘扩容卡" data-price="49.9" data-desc="永久扩容100GB云存储空间，支持文件极速上传/下载，享专属客服通道。">
-            <div class="card-img"></div>
-            <div class="card-title">云盘扩容卡</div>
-            <div class="card-price">¥49.9</div>
-            <button class="add-cart">加入购物车</button>
+        <div class="card" data-id="4" data-name="彩虹永久卡" data-price="129.9" data-desc="彩虹是一种mcmod">
+            <h3>彩虹永久卡</h3>
+            <p>¥129.9</p>
+            <button class="add-btn">加入购物车</button>
         </div>
     </div>
 
-    <!-- 详情弹窗 -->
-    <div class="modal detail-modal" id="detailModal">
-        <span class="close-modal" id="closeDetailModal">&times;</span>
+    <!-- 底部购物车按钮 -->
+    <button class="cart-btn" id="openCartBtn">购物车（0）</button>
+
+    <!-- 1. 卡片详情弹窗 -->
+    <div class="modal" id="detailModal">
+        <span class="close-modal" data-close="detailModal">&times;</span>
         <div class="modal-content">
-            <div class="detail-img"></div>
-            <h3 id="detailTitle"></h3>
-            <p class="card-price" id="detailPrice"></p>
-            <p class="detail-desc" id="detailDesc"></p>
-            <button class="add-cart" style="margin-top: 15px;" id="detailAddCart">加入购物车</button>
+            <h2 id="detailName"></h2>
+            <p id="detailPrice"></p>
+            <p id="detailDesc"></p>
+            <button class="add-btn" id="detailAddBtn">加入购物车</button>
         </div>
     </div>
 
-    <!-- 购物车弹窗 -->
-    <div class="modal cart-modal" id="cartModal">
-        <span class="close-modal" id="closeCartModal">&times;</span>
+    <!-- 2. 购物车弹窗 -->
+    <div class="modal" id="cartModal">
+        <span class="close-modal" data-close="cartModal">&times;</span>
         <div class="modal-content">
-            <h3>我的购物车</h3>
-            <div id="cartItemList"><!-- 购物车商品动态生成 --></div>
-            <div class="cart-total" id="cartTotal">总计：¥0.00</div>
-            <button class="checkout-btn" id="checkoutBtn">去付款</button>
+            <h2>我的购物车</h2>
+            <div id="cartItems"></div>
+            <div class="total" id="cartTotal">总计：¥0.00</div>
+            <button id="checkoutBtn">去付款</button>
         </div>
     </div>
 
-    <!-- 付款界面弹窗 -->
-    <div class="modal pay-modal" id="payModal">
-        <span class="close-modal" id="closePayModal">&times;</span>
+    <!-- 3. 付款弹窗（本地同目录付款码） -->
+    <div class="modal" id="payModal">
+        <span class="close-modal" data-close="payModal">&times;</span>
         <div class="modal-content">
-            <h3>请完成付款</h3>
-            <div class="pay-code-container">
-                <p>扫码付款（支持微信/支付宝）</p>
-                <div class="pay-code-img"></div>
+            <h2>请完成付款</h2>
+            <p class="pay-tip">扫码付款（微信支付）</p>
+            <div class="pay-code-wrap">
+                <div class="pay-code"></div>
             </div>
-            <div class="pay-note">
-                1. 付款时请备注订单号<br>
-                2. 付款后系统将自动发放卡片<br>
-                3. 若未到账请联系客服
-            </div>
-            <button class="confirm-pay-btn" id="confirmPayBtn">确认已付款</button>
+            <button id="confirmBtn">确认已付款</button>
         </div>
     </div>
 
-    <!-- 底部购物车栏 -->
-    <div class="cart-bar" id="cartBar">
-        <div>
-            购物车 <span class="cart-count" id="cartCount">0</span>
+    <!-- 4. 空购物车提示弹窗 -->
+    <div class="modal" id="emptyTipModal">
+        <div class="modal-content">
+            <h2>提示</h2>
+            <p>购物车还是空的哦~<br>先挑选心仪的权益卡加入购物车吧！</p>
+            <button id="emptyTipBtn">知道了</button>
         </div>
-        <button class="cart-btn" id="openCartBtn">去结算</button>
     </div>
 
+    <!-- 核心交互脚本（无任何拆分） -->
     <script>
-        // 全局数据：购物车商品列表
-        let cartItems = [];
-        // DOM元素获取
-        const themeBtn = document.getElementById('themeBtn');
-        const cardList = document.getElementById('cardList');
-        const cartCountEl = document.getElementById('cartCount');
-        const openCartBtn = document.getElementById('openCartBtn');
-        const cartModal = document.getElementById('cartModal');
-        const closeCartModal = document.getElementById('closeCartModal');
-        const cartItemList = document.getElementById('cartItemList');
-        const cartTotal = document.getElementById('cartTotal');
-        const checkoutBtn = document.getElementById('checkoutBtn');
-        const payModal = document.getElementById('payModal');
-        const closePayModal = document.getElementById('closePayModal');
-        const confirmPayBtn = document.getElementById('confirmPayBtn');
-        const detailModal = document.getElementById('detailModal');
-        const closeDetailModal = document.getElementById('closeDetailModal');
-        const detailTitle = document.getElementById('detailTitle');
-        const detailPrice = document.getElementById('detailPrice');
-        const detailDesc = document.getElementById('detailDesc');
-        const detailAddCart = document.getElementById('detailAddCart');
-        let currentCardData = {};
+        let cart = [];
+        let currentCard = {};
 
-        // 1. 分类按钮切换
-        document.querySelectorAll('.category-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
-                document.querySelectorAll('.category-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
+        // DOM元素统一获取
+        const cardList = document.querySelector('.card-list');
+        const openCartBtn = document.getElementById('openCartBtn');
+        const detailModal = document.getElementById('detailModal');
+        const cartModal = document.getElementById('cartModal');
+        const payModal = document.getElementById('payModal');
+        const emptyTipModal = document.getElementById('emptyTipModal');
+        const closeBtns = document.querySelectorAll('.close-modal');
+        const detailAddBtn = document.getElementById('detailAddBtn');
+        const checkoutBtn = document.getElementById('checkoutBtn');
+        const confirmBtn = document.getElementById('confirmBtn');
+        const emptyTipBtn = document.getElementById('emptyTipBtn');
+        const detailNameEl = document.getElementById('detailName');
+        const detailPriceEl = document.getElementById('detailPrice');
+        const detailDescEl = document.getElementById('detailDesc');
+        const cartItemsEl = document.getElementById('cartItems');
+        const cartTotalEl = document.getElementById('cartTotal');
+
+        // 1. 卡片点击：区分详情/加购
+        cardList.addEventListener('click', (e) => {
+            const card = e.target.closest('.card');
+            if (!card) return;
+
+            if (e.target.classList.contains('add-btn')) {
+                addToCart(card.dataset);
+                return;
+            }
+
+            currentCard = {
+                id: card.dataset.id,
+                name: card.dataset.name,
+                price: parseFloat(card.dataset.price),
+                desc: card.dataset.desc
+            };
+            detailNameEl.textContent = currentCard.name;
+            detailPriceEl.textContent = `¥${currentCard.price.toFixed(2)}`;
+            detailDescEl.textContent = currentCard.desc;
+            detailModal.classList.add('show');
+        });
+
+        // 2. 详情弹窗加购
+        detailAddBtn.addEventListener('click', () => {
+            addToCart(currentCard);
+            detailModal.classList.remove('show');
+        });
+
+// 3. 所有弹窗关闭
+closeBtns.foreach(BTN=>{
+BTN.addEventListener('单击'，()=>{
+文件.getElementById(BTN.数据集.关闭).classList。移除('显示')；
+});
+});
+
+// 4. 空购物车提示关闭
+emptyTipBtn.addEventListener('单击'，()=>{
+emptyTipModal.classList。移除('显示')；
+});
+
+// 5. 购物车按钮（带反馈）
+openCartBtn.addEventListener('单击'，()=>{
+openCartBtn。风格.改变='换算X(-50%)比例(1.1)'；
+setTimeout(()=>openCartBtn。风格.改变='translateX(-50%)刻度(1)'，200)；
+
+如果 (运货马车.长度=== 0) {0) {
+emptyTipModal.类列表。add('show')；emptyTipModal.classList.Add('show')；
+返回；返回；
+}
+
+setTimeout(()=>{setTimeout(()=>{
+renderCart()；renderCart()；
+cartModal.classList。add('show')；cartModal.classList.add('show')；
+}, 50);}, 50);
+});
+
+// 6. 去付款
+checkoutBtn.addEventListener('单击'，()=>{
+cartModal.classList。移除('显示')；
+payModal.classList。添加('显示')；
+});
+
+// 7. 确认付款
+confirmBtn.addEventListener('单击'，()=>{
+警惕的('付款成功！已为你激活${cart.length}项权益，请加客服o，客服qq为2708860272~')；
+payModal.classList。移除('显示')；
+运货马车=[]；
+updateCartBtn()；
+renderCart()；
+});
+
+// 核心函数：加购
+函数AddToCart(Carddata){
+运货马车.推({姓名：Carddata。名称、价格：parseFloat(Carddata.价格)})；
+updateCartBtn()；
+警报('"${cardData.name}"已加入购物车！\n当前共${cart.length}项健康权益‘)；
+}
+
+// 核心函数：更新购物车按钮
+函数updateCartBtn(){
+openCartBtn.textContent='购物车(${cart.长度})'；
+openCartBtn。风格.箱形阴影='06px16px rgba(231，76，60，0.3)'；
+setTimeout(()=>openCartBtn。风格.箱形阴影='04px12pxrgba(231，76，60，0.2)'，300)；
+}
+
+// 核心函数：渲染购物车
+函数renderCart(){
+cartItemsEl.innerHTML="；
+设全部的=0；
+运货马车.foreach((项目，我)=>{
+合计+=项目价格；
+ConstitemEl=文件.createElement('div')；
+itemEl.className='item'；
+itemEl.innerHTML='<span>${i+1}.${item。名称}</span><span>￥${项目.价格.toFixed(2)}</span>'；
+cartItemsEl.appendChild(itemEl)；
+});
+cartTotalEl.textContent='总计：￥${total.toFixed(2)}'；
+}
+</脚本>
+</身体>
+</超文本标记语言>
+Const detailPrice=document.getElementById('detailPrice')；
+Const detailDesc=document.getElementById('detailDesc')；
+Const detailAddCart=document.getElementById('detailAddCart')；
+设currentCardData={}；
+
+// 1. 分类按钮切换
+文件。querySelectorAll('.category-btn').foreach(btn=>{
+btn.addEventListener('click'，()=>{
+文件。querySelectorAll('.category-btn').foreach(b=>b.classList.remove('active'))；
+btn.classList.add('active')；
             });
         });
 
-        // 2. 深色模式切换
-        themeBtn.addEventListener('click', () => {
-            document.body.classList.toggle('dark');
-            themeBtn.textContent = document.body.classList.contains('dark') ? '浅色模式' : '深色模式';
+// 2. 深色模式切换
+themeBtn.addEventListener('click'，()=>{
+document.body.classList.toggle('深色')；
+主题Btn.textContent=document.body.classList.contains('深色')？'浅色模式'：'深色模式'；
         });
 
-        // 3. 详情弹窗逻辑
-        cardList.addEventListener('click', (e) => {
-            const card = e.target.closest('.card');
-            if (card && !e.target.classList.contains('add-cart')) {
-                currentCardData = {
-                    id: card.dataset.id,
-                    title: card.dataset.title,
-                    price: parseFloat(card.dataset.price),
+// 3. 详情弹窗逻辑
+cardList.addEventListener('click'，(e)=>{
+const card=e.target.closest('.card')；
+if(card&&！e.target.classList.conts('add-cart')){
+currentCardData={
+ID:card.dataset.id，
+标题：card.dataset.title，
+price:parseFloat(card.dataset.price)，
                     desc: card.dataset.desc
                 };
                 detailTitle.textContent = currentCardData.title;
