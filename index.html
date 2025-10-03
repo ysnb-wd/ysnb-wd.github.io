@@ -416,171 +416,76 @@
             detailModal.classList.remove('show');
         });
 
-// 3. 所有弹窗关闭
-closeBtns.foreach(BTN=>{
-BTN.addEventListener('单击'，()=>{
-文件.getElementById(BTN.数据集.关闭).classList。移除('显示')；
-});
-});
-
-// 4. 空购物车提示关闭
-emptyTipBtn.addEventListener('单击'，()=>{
-emptyTipModal.classList。移除('显示')；
-});
-
-// 5. 购物车按钮（带反馈）
-openCartBtn.addEventListener('单击'，()=>{
-openCartBtn。风格.改变='换算X(-50%)比例(1.1)'；
-setTimeout(()=>openCartBtn。风格.改变='translateX(-50%)刻度(1)'，200)；
-
-如果 (运货马车.长度=== 0) {0) {
-emptyTipModal.类列表。add('show')；emptyTipModal.classList.Add('show')；
-返回；返回；
-}
-
-setTimeout(()=>{setTimeout(()=>{
-renderCart()；renderCart()；
-cartModal.classList。add('show')；cartModal.classList.add('show')；
-}, 50);}, 50);
-});
-
-// 6. 去付款
-checkoutBtn.addEventListener('单击'，()=>{
-cartModal.classList。移除('显示')；
-payModal.classList。添加('显示')；
-});
-
-// 7. 确认付款
-confirmBtn.addEventListener('单击'，()=>{
-警惕的('付款成功！已为你激活${cart.length}项权益，请加客服o，客服qq为2708860272~')；
-payModal.classList。移除('显示')；
-运货马车=[]；
-updateCartBtn()；
-renderCart()；
-});
-
-// 核心函数：加购
-函数AddToCart(Carddata){
-运货马车.推({姓名：Carddata。名称、价格：parseFloat(Carddata.价格)})；
-updateCartBtn()；
-警报('"${cardData.name}"已加入购物车！\n当前共${cart.length}项健康权益‘)；
-}
-
-// 核心函数：更新购物车按钮
-函数updateCartBtn(){
-openCartBtn.textContent='购物车(${cart.长度})'；
-openCartBtn。风格.箱形阴影='06px16px rgba(231，76，60，0.3)'；
-setTimeout(()=>openCartBtn。风格.箱形阴影='04px12pxrgba(231，76，60，0.2)'，300)；
-}
-
-// 核心函数：渲染购物车
-函数renderCart(){
-cartItemsEl.innerHTML="；
-设全部的=0；
-运货马车.foreach((项目，我)=>{
-合计+=项目价格；
-ConstitemEl=文件.createElement('div')；
-itemEl.className='item'；
-itemEl.innerHTML='<span>${i+1}.${item。名称}</span><span>￥${项目.价格.toFixed(2)}</span>'；
-cartItemsEl.appendChild(itemEl)；
-});
-cartTotalEl.textContent='总计：￥${total.toFixed(2)}'；
-}
-</脚本>
-</身体>
-</超文本标记语言>
-Const detailPrice=document.getElementById('detailPrice')；
-Const detailDesc=document.getElementById('detailDesc')；
-Const detailAddCart=document.getElementById('detailAddCart')；
-设currentCardData={}；
-
-// 1. 分类按钮切换
-文件。querySelectorAll('.category-btn').foreach(btn=>{
-btn.addEventListener('click'，()=>{
-文件。querySelectorAll('.category-btn').foreach(b=>b.classList.remove('active'))；
-btn.classList.add('active')；
+        // 3. 所有弹窗关闭
+        closeBtns.forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.getElementById(btn.dataset.close).classList.remove('show');
             });
         });
 
-// 2. 深色模式切换
-themeBtn.addEventListener('click'，()=>{
-document.body.classList.toggle('深色')；
-主题Btn.textContent=document.body.classList.contains('深色')？'浅色模式'：'深色模式'；
+        // 4. 空购物车提示关闭
+        emptyTipBtn.addEventListener('click', () => {
+            emptyTipModal.classList.remove('show');
         });
 
-// 3. 详情弹窗逻辑
-cardList.addEventListener('click'，(e)=>{
-const card=e.target.closest('.card')；
-if(card&&！e.target.classList.conts('add-cart')){
-currentCardData={
-ID:card.dataset.id，
-标题：card.dataset.title，
-price:parseFloat(card.dataset.price)，
-                    desc: card.dataset.desc
-                };
-                detailTitle.textContent = currentCardData.title;
-                detailPrice.textContent = `¥${currentCardData.price.toFixed(2)}`;
-                detailDesc.textContent = currentCardData.desc;
-                detailModal.style.display = 'flex';
-            }
-        });
-        closeDetailModal.addEventListener('click', () => detailModal.style.display = 'none');
-        window.addEventListener('click', (e) => {
-            if (e.target === detailModal) detailModal.style.display = 'none';
-        });
-
-        // 4. 购物车核心逻辑
-        function updateCart() {
-            cartCountEl.textContent = cartItems.length;
-            cartItemList.innerHTML = '';
-            let total = 0;
-            cartItems.forEach(item => {
-                total += item.price;
-                const cartItem = document.createElement('div');
-                cartItem.className = 'cart-item';
-                cartItem.innerHTML = `<span>${item.title}</span><span>¥${item.price.toFixed(2)}</span>`;
-                cartItemList.appendChild(cartItem);
-            });
-            cartTotal.textContent = `总计：¥${total.toFixed(2)}`;
-        }
-
-        // 卡片内加入购物车
-        document.querySelectorAll('.add-cart').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                e.stopPropagation();
-                const card = e.target.closest('.card');
-                const cardData = card ? {
-                    id: card.dataset.id,
-                    title: card.dataset.title,
-                    price: parseFloat(card.dataset.price)
-                } : currentCardData;
-                cartItems.push(cardData);
-                updateCart();
-                alert('已加入购物车！');
-            });
-        });
-
-        // 5. 弹窗切换逻辑（完整无缺失）
-        // 打开购物车
+        // 5. 购物车按钮（带反馈）
         openCartBtn.addEventListener('click', () => {
-            if (cartItems.length === 0) {
-                alert('购物车为空，请先添加商品！');
+            openCartBtn.style.transform = 'translateX(-50%) scale(1.1)';
+            setTimeout(() => openCartBtn.style.transform = 'translateX(-50%) scale(1)', 200);
+
+            if (cart.length === 0) {
+                emptyTipModal.classList.add('show');
                 return;
             }
-            cartModal.style.display = 'flex';
-        });
-        // 关闭购物车
-        closeCartModal.addEventListener('click', () => cartModal.style.display = 'none');
-        window.addEventListener('click', (e) => {
-            if (e.target === cartModal) cartModal.style.display = 'none';
+
+            setTimeout(() => {
+                renderCart();
+                cartModal.classList.add('show');
+            }, 50);
         });
 
-        // 购物车 -> 付款页
+        // 6. 去付款
         checkoutBtn.addEventListener('click', () => {
-            cartModal.style.display = 'none';
-            payModal.style.display = 'flex';
+            cartModal.classList.remove('show');
+            payModal.classList.add('show');
         });
 
-        // 关闭付款页
-        closePayModal.addEventListener('click', () => payModal.style.display = 'none');
-        window.addEventListener('click', (e) =>
+        // 7. 确认付款
+        confirmBtn.addEventListener('click', () => {
+            alert(`付款成功！已为你激活${cart.length}项权益，请加客服o，客服qq为2708860272~`);
+            payModal.classList.remove('show');
+            cart = [];
+            updateCartBtn();
+            renderCart();
+        });
+
+        // 核心函数：加购
+        function addToCart(cardData) {
+            cart.push({ name: cardData.name, price: parseFloat(cardData.price) });
+            updateCartBtn();
+            alert(`「${cardData.name}」已加入购物车！\n当前共${cart.length}项健康权益`);
+        }
+
+        // 核心函数：更新购物车按钮
+        function updateCartBtn() {
+            openCartBtn.textContent = `购物车（${cart.length}）`;
+            openCartBtn.style.boxShadow = '0 6px 16px rgba(231, 76, 60, 0.3)';
+            setTimeout(() => openCartBtn.style.boxShadow = '0 4px 12px rgba(231, 76, 60, 0.2)', 300);
+        }
+
+        // 核心函数：渲染购物车
+        function renderCart() {
+            cartItemsEl.innerHTML = '';
+            let total = 0;
+            cart.forEach((item, i) => {
+                total += item.price;
+                const itemEl = document.createElement('div');
+                itemEl.className = 'item';
+                itemEl.innerHTML = `<span>${i+1}. ${item.name}</span><span>¥${item.price.toFixed(2)}</span>`;
+                cartItemsEl.appendChild(itemEl);
+            });
+            cartTotalEl.textContent = `总计：¥${total.toFixed(2)}`;
+        }
+    </script>
+</body>
+</html>
