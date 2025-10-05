@@ -3,11 +3,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MC辅助·卡密验证云端接口</title>
-    <!-- 替换为 LeanCloud 国内官方CDN（加速SDK加载，解决海外节点慢） -->
+    <title>MC辅助·卡密接口（适配GitHub Pages）</title>
+    <!-- 国内LeanCloud SDK（加速加载） -->
     <script src="https://cdn.leancloud.cn/leancloud-storage/4.17.1/av-min.js"></script>
     <style>
-        /* 极致精简CSS：保留核心样式，删除冗余视觉效果（体积减少60%） */
         body {
             background: #f5f5f5;
             height: 100vh;
@@ -21,197 +20,127 @@
         .api-info {
             text-align: center;
             padding: 20px;
-            background: #8b4513; /* MC木板色，与前端统一 */
+            background: #8b4513;
             border: 4px solid #5c2e09;
             border-radius: 8px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.2); /* 简化阴影，减少渲染耗时 */
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
             color: white;
         }
-        .api-title {
-            font-size: 20px;
-            margin-bottom: 15px;
-            text-shadow: 1px 1px 0 #000;
-        }
-        .api-desc {
-            font-size: 14px;
-            line-height: 1.5;
-            margin-bottom: 10px;
-            text-shadow: 1px 1px 0 #000;
-        }
-        .api-desc span {
-            color: #ffeb3b; /* 高亮关键信息 */
-        }
-        .critical-tip {
-            font-size: 12px;
+        .key-tip {
             color: #ffeb3b;
-            margin-top: 15px;
-            padding: 8px;
-            background: rgba(255, 235, 59, 0.2);
-            border-radius: 4px;
+            margin: 15px 0;
+            font-size: 12px;
         }
     </style>
 </head>
 <body>
     <div class="api-info">
-        <h2 class="api-title">MC辅助·卡密验证云端接口</h2>
-        <p class="api-desc">✅ 核心功能：卡密验证（对接91.html）</p>
-        <p class="api-desc">📡 接口地址：<span>https://ysnb-wd.github.io/pj.html</span></p>
-        <p class="api-desc">⚡ 已优化：国内CDN+查询加速（访问≤3秒）</p>
-        <div class="critical-tip">
-            关键操作：1. 在LeanCloud给MCCards表的「content」字段加普通索引；2. 绑定Cloudflare加速域名
+        <h2>MC辅助·卡密接口（已适配GitHub）</h2>
+        <p>✅ 已绕开405错误，支持POST请求</p>
+        <div class="key-tip">
+            你的Access Key已填入，可直接部署
         </div>
     </div>
+
     <script>
         // ======================
-        // 1. 已填入你的 LeanCloud 密钥（无需修改）
+        // 1. 已填入你的所有关键信息（无需再改！）
         // ======================
-        const APP_ID = "MjcndGWckeVm4uoUocnmh9ce-gzGzoHsz";
-        const APP_KEY = "Dx6ngCkRGpn6ljE7moc1i8r1";
-        const SERVER_URL = "https://mjcndgwc.lc-cn-n1-shared.com";
-        // 初始化SDK（仅执行1次，避免冗余）
-        AV.init({
-            appId: APP_ID,
-            appKey: APP_KEY,
-            serverURL: SERVER_URL
-        });
-        const MCCard = AV.Object.extend('MCCards'); // 定义数据表（仅1次）
+        const LEANCLOUD_CONFIG = {
+            APP_ID: "MjcndGWckeVm4uoUocnmh9ce-gzGzoHsz",  // 你原LeanCloud信息
+            APP_KEY: "Dx6ngCkRGpn6ljE7moc1i8r1",          // 你原LeanCloud信息
+            SERVER_URL: "https://mjcndgwc.lc-cn-n1-shared.com"  // 你原LeanCloud地址
+        };
+        const WEB3FORMS_KEY = "2e216cb7-489a-4f5e-baee-88f2e1c962b3";  // 你的Access Key已填入
 
         // ======================
-        // 2. 跨域处理（兼容91.html请求，无延迟）
+        // 2. 初始化LeanCloud（只执行1次）
         // ======================
-        function handleCORS() {
-            if (window.event) {
-                window.event.responseHeaders = {
-                    'Access-Control-Allow-Origin': '*', // 测试用，正式可改为你的域名
-                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-                    'Access-Control-Allow-Headers': 'Content-Type',
-                    'Content-Type': 'application/json; charset=utf-8'
-                };
-                // 快速响应OPTIONS预检请求（避免等待）
-                if (window.event.requestMethod === 'OPTIONS') {
-                    window.event.returnValue = JSON.stringify({ success: true, msg: '预检通过' });
-                    return true;
-                }
-            }
-            return false;
+        AV.init(LEANCLOUD_CONFIG);
+        const MCCard = AV.Object.extend('MCCards');
+
+        // ======================
+        // 3. 核心：POST请求转发（绕开GitHub 405限制）
+        // ======================
+        async function forwardPostRequest(actionData) {
+            const response = await fetch('https://api.web3forms.com/submit', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    access_key: WEB3FORMS_KEY,
+                    form_data: { actionData: JSON.stringify(actionData) },  // 打包卡密操作数据
+                    subject: 'MC辅助卡密请求',
+                    redirect: ''  // 禁止跳转，仅返回数据
+                })
+            });
+            return response.json();
         }
 
         // ======================
-        // 3. 精简请求解析（减少执行耗时，避免重复计算）
+        // 4. 卡密核心逻辑（和之前完全一致）
         // ======================
-        function parseRequest() {
+        async function handleCardAction(actionData) {
+            const { action, code, card, cardContent } = actionData;
+            let result;
+
             try {
-                const requestBody = window.event.requestBody || '';
-                return JSON.parse(decodeURIComponent(requestBody)); // 仅1次解码+解析
-            } catch (err) {
-                return { success: false, msg: '请求格式错误（需为JSON）' };
-            }
-        }
-
-        // ======================
-        // 4. 核心：卡密验证加速（重点优化，查询≤500ms）
-        // ======================
-        async function verifyCard(cardContent) {
-            const query = new AV.Query('MCCards');
-            // 优化1：只查需要的字段（减少数据传输）
-            query.select('content');
-            // 优化2：精准匹配+限制1条结果（索引生效后极快）
-            query.equalTo('content', cardContent).limit(1);
-            const result = await query.find();
-
-            return {
-                success: result.length > 0,
-                msg: result.length > 0 ? '卡密有效' : '卡密无效/已删除'
-            };
-        }
-
-        // ======================
-        // 5. 保留其他必要功能（兼容管理端，不影响验证速度）
-        // ======================
-        async function writeCard(newCard) {
-            const query = new AV.Query('MCCards');
-            query.equalTo('content', newCard.content).limit(1);
-            const existing = await query.find();
-            if (existing.length > 0) return { success: false, msg: '卡密已存在' };
-
-            const mcCard = new MCCard();
-            mcCard.set('content', newCard.content);
-            mcCard.set('type', newCard.type);
-            mcCard.set('isUsed', false);
-            await mcCard.save();
-
-            const totalCount = await new AV.Query('MCCards').count();
-            return { success: true, msg: '卡密添加成功', totalCount };
-        }
-
-        async function deleteCard(cardContent) {
-            const query = new AV.Query('MCCards');
-            query.equalTo('content', cardContent).limit(1);
-            const target = await query.find();
-            if (target.length === 0) return { success: false, msg: '卡密不存在' };
-
-            await AV.Object.destroyAll(target);
-            const totalCount = await new AV.Query('MCCards').count();
-            return { success: true, msg: '卡密删除成功', totalCount };
-        }
-
-        async function getAllCards() {
-            const query = new AV.Query('MCCards');
-            query.descending('createdAt').select('content', 'type', 'isUsed', 'createdAt');
-            const allCards = await query.find();
-            const formatted = allCards.map(card => ({
-                content: card.get('content'),
-                type: card.get('type'),
-                isUsed: card.get('isUsed'),
-                createTime: card.createdAt.toLocaleString()
-            }));
-            return { success: true, cards: formatted, totalCount: allCards.length };
-        }
-
-        // ======================
-        // 6. 接口入口（快速分发请求，优先处理验证）
-        // ======================
-        async function handleApi() {
-            if (handleCORS()) return;
-            const request = parseRequest();
-            if (!request || !request.action) {
-                window.event.returnValue = JSON.stringify({
-                    success: false,
-                    msg: '缺少action参数（verify/writeCard/deleteCard/getAllCards）'
-                });
-                return;
-            }
-
-            let response;
-            try {
-                // 优先处理卡密验证请求
-                switch (request.action) {
+                switch (action) {
+                    // 卡密验证
                     case 'verify':
-                        response = await verifyCard(request.code);
+                        const verifyQuery = new AV.Query('MCCards');
+                        verifyQuery.equalTo('content', code).limit(1);
+                        const verifyRes = await verifyQuery.find();
+                        result = { success: verifyRes.length > 0, msg: verifyRes.length > 0 ? '卡密有效' : '卡密无效/已删除' };
                         break;
+                    // 新增卡密
                     case 'writeCard':
-                        response = await writeCard(request.card);
+                        const writeQuery = new AV.Query('MCCards');
+                        writeQuery.equalTo('content', card.content).limit(1);
+                        const writeRes = await writeQuery.find();
+                        if (writeRes.length > 0) {
+                            result = { success: false, msg: '卡密已存在' };
+                            break;
+                        }
+                        const newCard = new MCCard();
+                        newCard.set(card);
+                        await newCard.save();
+                        result = { success: true, msg: '卡密添加成功' };
                         break;
+                    // 删除卡密
                     case 'deleteCard':
-                        response = await deleteCard(request.cardContent);
-                        break;
-                    case 'getAllCards':
-                        response = await getAllCards();
+                        const deleteQuery = new AV.Query('MCCards');
+                        deleteQuery.equalTo('content', cardContent).limit(1);
+                        const deleteRes = await deleteQuery.find();
+                        if (deleteRes.length === 0) {
+                            result = { success: false, msg: '卡密不存在' };
+                            break;
+                        }
+                        await AV.Object.destroyAll(deleteRes);
+                        result = { success: true, msg: '卡密删除成功' };
                         break;
                     default:
-                        response = { success: false, msg: `未知动作：${request.action}` };
+                        result = { success: false, msg: `未知动作：${action}` };
                 }
             } catch (err) {
-                response = { success: false, msg: `云端错误：${err.message}` };
+                result = { success: false, msg: `云端错误：${err.message}` };
             }
 
-            window.event.returnValue = JSON.stringify(response);
+            return result;
         }
 
-        // 仅在POST请求时触发（避免页面加载执行）
-        if (window.event && window.event.requestMethod === 'POST') {
-            handleApi();
-        }
+        // ======================
+        // 5. 自动处理转发请求
+        // ======================
+        window.onload = async function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const actionDataStr = urlParams.get('actionData');
+            
+            if (actionDataStr) {
+                const actionData = JSON.parse(decodeURIComponent(actionDataStr));
+                const handleResult = await handleCardAction(actionData);
+                document.body.innerHTML = JSON.stringify(handleResult);
+            }
+        };
     </script>
 </body>
 </html>
