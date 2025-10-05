@@ -2,437 +2,219 @@
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>MC辅助·控制中心</title>
-    <link href="https://fonts.googleapis.com/css2?family=Minecraftia&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --mc-sky: #7ec0ee;
-            --panel-bg: rgba(44, 62, 80, 0.95);
-            --mc-blue: #3498db;
-            --mc-green: #4CAF50;
-            --mc-red: #e74c3c;
-            --text-color: #ecf0f1;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Minecraftia', sans-serif;
-        }
-
         body {
-            background: linear-gradient(to bottom, var(--mc-sky) 0%, var(--mc-sky) 70%, #9b7b6b 70%, #9b7b6b 100%);
-            min-height: 100vh;
-            color: var(--text-color);
+            background: linear-gradient(to bottom, #7ec0ee 0%, #7ec0ee 70%, #9b7b6b 70%, #9b7b6b 100%);
+            height: 100vh;
+            margin: 0;
             padding: 20px;
+            font-family: 'Minecraftia', sans-serif;
+            color: #ecf0f1;
         }
-
-        /* 顶部导航栏 */
-        .header {
-            background: var(--panel-bg);
-            border-radius: 8px;
-            padding: 15px 25px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.2);
-        }
-
-        .header-title {
-            font-size: 20px;
-            color: var(--mc-blue);
-            text-shadow: 1px 1px 0 #000;
-        }
-
-        .admin-info {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .admin-role {
-            font-size: 14px;
-            opacity: 0.9;
-        }
-
-        .logout-btn {
-            padding: 8px 16px;
-            background: var(--mc-red);
-            border: none;
-            border-radius: 4px;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .logout-btn:hover {
-            background: #c0392b;
-        }
-
-        /* 主控制区 */
-        .control-container {
-            background: var(--panel-bg);
-            border-radius: 12px;
-            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            padding: 25px;
-            max-width: 1200px;
+        .container {
+            max-width: 600px;
             margin: 0 auto;
-        }
-
-        .control-title {
-            font-size: 18px;
-            margin-bottom: 20px;
-            color: var(--mc-blue);
-            border-bottom: 2px solid rgba(255,255,255,0.1);
-            padding-bottom: 10px;
-        }
-
-        /* 卡密管理表格 */
-        .card-table {
-            width: 100%;
-            border-collapse: collapse;
-            margin-bottom: 25px;
-        }
-
-        .card-table th, .card-table td {
-            padding: 12px 15px;
-            text-align: left;
-            border-bottom: 1px solid rgba(255,255,255,0.1);
-        }
-
-        .card-table th {
-            color: var(--mc-green);
-            font-size: 15px;
-        }
-
-        .card-table td {
-            font-size: 14px;
-        }
-
-        /* 操作按钮 */
-        .operate-btn {
-            padding: 6px 12px;
-            border: none;
-            border-radius: 4px;
-            cursor: pointer;
-            font-size: 13px;
-            transition: all 0.3s;
-        }
-
-        .delete-btn {
-            background: var(--mc-red);
-            color: white;
-            margin-left: 10px;
-        }
-
-        .delete-btn:hover {
-            background: #c0392b;
-        }
-
-        /* 新增卡密表单 */
-        .add-card-form {
-            background: rgba(52, 73, 94, 0.8);
+            background: rgba(44, 62, 80, 0.9);
+            border: 4px solid #5c2e09;
             border-radius: 8px;
             padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+        }
+        h1 {
+            text-align: center;
+            text-shadow: 2px 2px 0 #000;
             margin-bottom: 20px;
         }
-
-        .form-row {
-            display: flex;
-            gap: 20px;
+        .card-form {
+            margin-bottom: 20px;
+        }
+        .form-group {
             margin-bottom: 15px;
         }
-
-        .form-col {
-            flex: 1;
-        }
-
-        .form-col label {
+        label {
             display: block;
-            margin-bottom: 8px;
-            font-size: 14px;
+            margin-bottom: 5px;
+            font-size: 16px;
         }
-
-        .form-input {
+        input, select {
             width: 100%;
             padding: 10px;
-            border: 1px solid rgba(255,255,255,0.2);
+            border: 2px solid #ccc;
             border-radius: 4px;
-            background: rgba(255,255,255,0.1);
-            color: var(--text-color);
-            font-size: 14px;
-            outline: none;
+            font-size: 16px;
+            background: #f9f9f9;
+            color: #333;
         }
-
-        .add-btn {
-            padding: 10px 20px;
-            background: var(--mc-green);
-            border: none;
+        button {
+            width: 100%;
+            padding: 12px;
+            background: #4CAF50;
+            border: 2px solid #2e7d32;
             border-radius: 4px;
             color: white;
-            font-size: 14px;
+            font-size: 16px;
             cursor: pointer;
-            transition: background 0.3s;
+            transition: background 0.2s;
         }
-
-        .add-btn:hover {
+        button:active {
             background: #2e7d32;
         }
-
-        /* 结果提示 */
-        .result-tip {
-            margin-top: 15px;
-            padding: 10px;
+        .msg {
+            margin-top: 10px;
+            font-size: 14px;
+            color: #ffeb3b;
+        }
+        .card-list {
+            margin-top: 30px;
+        }
+        h2 {
+            text-shadow: 1px 1px 0 #000;
+            margin-bottom: 15px;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        th, td {
+            border: 1px solid #ccc;
+            padding: 8px;
+            text-align: left;
+        }
+        th {
+            background: rgba(52, 73, 94, 0.8);
+        }
+        .delete-btn {
+            background: #e74c3c;
+            color: white;
+            border: none;
+            padding: 4px 8px;
             border-radius: 4px;
-            font-size: 14px;
-            display: none;
+            cursor: pointer;
         }
-
-        .success {
-            background: rgba(46, 125, 50, 0.2);
-            color: #4ee44e;
-            display: block;
-        }
-
-        .error {
-            background: rgba(231, 76, 60, 0.2);
-            color: #ff4d4d;
-            display: block;
-        }
-
-        /* 云端地址显示 */
-        .cloud-url {
-            margin-top: 20px;
-            font-size: 14px;
-            color: #94a3b8;
-        }
-
-        .cloud-url span {
-            color: var(--mc-blue);
+        .delete-btn:active {
+            background: #c0392b;
         }
     </style>
 </head>
 <body>
-    <!-- 顶部导航 -->
-    <div class="header">
-        <div class="header-title">MC辅助·卡密控制中心</div>
-        <div class="admin-info">
-            <div class="admin-role" id="adminRole">超级用户（91）</div>
-            <button class="logout-btn" id="logoutBtn">退出登录</button>
-        </div>
-    </div>
-
-    <!-- 主控制区 -->
-    <div class="control-container">
-        <h3 class="control-title">云端卡密管理</h3>
-
-        <!-- 新增卡密表单 -->
-        <div class="add-card-form">
-            <h4 style="margin-bottom: 15px; color: var(--mc-green);">新增卡密</h4>
-            <div class="form-row">
-                <div class="form-col">
-                    <label for="newCard">卡密内容（格式：MC-XXXX-XXXX）</label>
-                    <input type="text" id="newCard" class="form-input" placeholder="例如：MC-2025-91VIP">
-                </div>
-                <div class="form-col">
-                    <label for="cardType">卡密类型</label>
-                    <select id="cardType" class="form-input">
-                        <option value="vip">VIP卡密</option>
-                        <option value="test">测试卡密</option>
-                        <option value="admin">管理员卡密</option>
-                    </select>
-                </div>
+    <div class="container">
+        <h1>MC辅助·控制中心</h1>
+        <div class="card-form">
+            <h2>云端卡密管理</h2>
+            <div class="form-group">
+                <label>卡密内容（格式：MC-XXXX-XXXX）</label>
+                <input type="text" id="cardContent" placeholder="输入卡密">
             </div>
-            <button class="add-btn" id="addCardBtn">添加到云端</button>
-            <p class="result-tip" id="addResult"></p>
+            <div class="form-group">
+                <label>卡密类型</label>
+                <select id="cardType">
+                    <option value="VIP卡密">VIP卡密</option>
+                    <option value="普通卡密">普通卡密</option>
+                </select>
+            </div>
+            <button id="addCard">添加到云端</button>
+            <div class="msg" id="addMsg"></div>
         </div>
-
-        <!-- 卡密列表表格 -->
-        <h4 style="margin-bottom: 15px; color: var(--mc-green);">云端卡密列表</h4>
-        <table class="card-table">
-            <thead>
-                <tr>
-                    <<th>序号</</th>
-                    <<th>卡密内容</</th>
-                    <<th>卡密类型</</th>
-                    <<th>操作</</th>
-                </tr>
-            </thead>
-            <tbody id="cardListBody">
-                <!-- 卡密列表将通过JS从云端获取并渲染 -->
-                <tr>
-                    <td colspan="4" style="text-align: center;">加载中...（请确保网络正常）</td>
-                </tr>
-            </tbody>
-        </table>
-        <p class="result-tip" id="deleteResult"></p>
-
-        <!-- 云端地址 -->
-        <div class="cloud-url">
-            云端接口地址：<span>https://ysnb-wd.github.io/pj.html</span>
+        <div class="card-list">
+            <h2>云端卡密列表</h2>
+            <table id="cardTable">
+                <thead>
+                    <tr>
+                        <<th>序号</</th>
+                        <<th>卡密内容</</th>
+                        <<th>卡密类型</</th>
+                        <<th>操作</</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td colspan="4" style="text-align: center;">加载中...</td>
+                    </tr>
+                </tbody>
+            </table>
         </div>
     </div>
 
     <script>
-        // 未登录跳转登录页
-        const isLogin = localStorage.getItem('mcAdminLogin');
-        const adminInfo = JSON.parse(localStorage.getItem('mcAdminInfo'));
-        if (!isLogin || isLogin !== 'true' || !adminInfo) {
-            window.location.href = 'login.html';
-        }
+        // ======================
+        // 配置：修改为你的pj.html地址
+        // ======================
+        const CLOUD_URL = "https://ysnb-wd.github.io/pj.html";
 
-        // DOM元素
-        const adminRoleEl = document.getElementById('adminRole');
-        const logoutBtn = document.getElementById('logoutBtn');
-        const addCardBtn = document.getElementById('addCardBtn');
-        const newCardInput = document.getElementById('newCard');
-        const cardTypeSelect = document.getElementById('cardType');
-        const addResult = document.getElementById('addResult');
-        const deleteResult = document.getElementById('deleteResult');
-        const cardListBody = document.getElementById('cardListBody');
-
-        // 显示管理员信息
-        adminRoleEl.textContent = `${adminInfo.role}（${adminInfo.username}）`;
-
-        // 退出登录
-        logoutBtn.addEventListener('click', () => {
-            localStorage.removeItem('mcAdminLogin');
-            localStorage.removeItem('mcAdminInfo');
-            window.location.href = 'login.html';
-        });
-
-        // 云端地址（固定）
-        const CLOUD_URL = 'https://ysnb-wd.github.io/pj.html';
-
-        // 1. 加载云端卡密列表
-        async function loadCardList() {
-            try {
-                const response = await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'getAllCards' })
-                });
-                const data = await response.json();
-
-                if (data.success && data.cards.length > 0) {
-                    // 渲染卡密列表
-                    cardListBody.innerHTML = '';
-                    data.cards.forEach((card, index) => {
-                        const tr = document.createElement('tr');
-                        tr.innerHTML = `
-                            <td>${index + 1}</td>
-                            <td>${card.content}</td>
-                            <td>${card.type === 'vip' ? 'VIP卡密' : card.type === 'test' ? '测试卡密' : '管理员卡密'}</td>
-                            <td>
-                                ${adminInfo.role === '超级用户' ? 
-                                    `<button class="operate-btn delete-btn" data-card="${card.content}">删除</button>` : 
-                                    '<span>无权限</span>'
-                                }
-                            </td>
-                        `;
-                        cardListBody.appendChild(tr);
-                    });
-
-                    // 绑定删除按钮事件（仅超级用户）
-                    if (adminInfo.role === '超级用户') {
-                        document.querySelectorAll('.delete-btn').forEach(btn => {
-                            btn.addEventListener('click', async (e) => {
-                                const cardToDelete = e.target.getAttribute('data-card');
-                                if (confirm(`确定要删除卡密：${cardToDelete} 吗？`)) {
-                                    await deleteCard(cardToDelete);
-                                }
-                            });
-                        });
-                    }
-                } else {
-                    cardListBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">云端暂无卡密</td></tr>';
-                }
-            } catch (err) {
-                cardListBody.innerHTML = '<tr><td colspan="4" style="text-align: center; color: #ff4d4d;">加载失败，请检查网络</td></tr>';
-                console.error('加载卡密失败：', err);
-            }
-        }
-
-        // 2. 添加卡密到云端
-        async function addCard() {
-            const newCard = newCardInput.value.trim();
-            const cardType = cardTypeSelect.value;
-
-            if (!newCard || !newCard.includes('MC-')) {
-                addResult.textContent = '卡密格式错误！请按 "MC-XXXX-XXXX" 格式输入';
-                addResult.className = 'result-tip error';
+        // ======================
+        // 新增卡密逻辑（适配转发）
+        // ======================
+        document.getElementById('addCard').addEventListener('click', async function() {
+            const cardContent = document.getElementById('cardContent').value.trim();
+            const cardType = document.getElementById('cardType').value;
+            if (!cardContent || !cardContent.includes('MC-')) {
+                document.getElementById('addMsg').textContent = "请输入正确格式的卡密（MC-XXXX-XXXX）";
                 return;
             }
 
-            try {
-                const response = await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'writeCard',
-                        card: { content: newCard, type: cardType }
-                    })
-                });
-                const data = await response.json();
+            const actionData = { action: 'writeCard', card: { content: cardContent, type: cardType, isUsed: false } };
+            const response = await fetch(
+                `${CLOUD_URL}?actionData=${encodeURIComponent(JSON.stringify(actionData))}`,
+                { method: 'GET' }
+            );
+            const data = await response.json();
 
-                if (data.success) {
-                    addResult.textContent = `卡密添加成功！云端当前卡密数量：${data.totalCount}`;
-                    addResult.className = 'result-tip success';
-                    newCardInput.value = ''; // 清空输入框
-                    loadCardList(); // 重新加载列表
-                } else {
-                    addResult.textContent = '添加失败：' + (data.msg || '云端错误');
-                    addResult.className = 'result-tip error';
-                }
-            } catch (err) {
-                addResult.textContent = '网络错误，添加失败';
-                addResult.className = 'result-tip error';
-                console.error('添加卡密失败：', err);
+            document.getElementById('addMsg').textContent = data.msg || (data.success ? "添加成功" : "添加失败");
+            document.getElementById('addMsg').style.color = data.success ? "#4ee44e" : "#ffeb3b";
+            loadCardList(); // 新增后刷新列表
+        });
+
+        // ======================
+        // 加载卡密列表逻辑（适配转发）
+        // ======================
+        async function loadCardList() {
+            const actionData = { action: 'getAllCards' };
+            const response = await fetch(
+                `${CLOUD_URL}?actionData=${encodeURIComponent(JSON.stringify(actionData))}`,
+                { method: 'GET' }
+            );
+            const data = await response.json();
+
+            const tableBody = document.getElementById('cardTable').getElementsByTagName('tbody')[0];
+            if (data.success && data.cards.length > 0) {
+                tableBody.innerHTML = '';
+                data.cards.forEach((card, index) => {
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${index + 1}</td>
+                        <td>${card.content}</td>
+                        <td>${card.type}</td>
+                        <td><button class="delete-btn" onclick="deleteCard('${card.content}')">删除</button></td>
+                    `;
+                    tableBody.appendChild(row);
+                });
+            } else {
+                tableBody.innerHTML = '<tr><td colspan="4" style="text-align: center;">暂无卡密</td></tr>';
             }
         }
 
-        // 3. 从云端删除卡密
-        async function deleteCard(cardContent) {
-            try {
-                const response = await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        action: 'deleteCard',
-                        cardContent: cardContent
-                    })
-                });
+        // ======================
+        // 删除卡密逻辑（适配转发）
+        // ======================
+        window.deleteCard = async function(cardContent) {
+            if (confirm(`确定删除卡密 ${cardContent} 吗？`)) {
+                const actionData = { action: 'deleteCard', cardContent };
+                const response = await fetch(
+                    `${CLOUD_URL}?actionData=${encodeURIComponent(JSON.stringify(actionData))}`,
+                    { method: 'GET' }
+                );
                 const data = await response.json();
-
-                if (data.success) {
-                    deleteResult.textContent = `卡密 "${cardContent}" 删除成功！`;
-                    deleteResult.className = 'result-tip success';
-                    loadCardList(); // 重新加载列表
-                } else {
-                    deleteResult.textContent = '删除失败：' + (data.msg || '卡密不存在或无权限');
-                    deleteResult.className = 'result-tip error';
-                }
-            } catch (err) {
-                deleteResult.textContent = '网络错误，删除失败';
-                deleteResult.className = 'result-tip error';
-                console.error('删除卡密失败：', err);
+                alert(data.msg || (data.success ? "删除成功" : "删除失败"));
+                loadCardList(); // 删除后刷新列表
             }
+        };
 
-            // 3秒后隐藏结果提示
-            setTimeout(() => {
-                deleteResult.className = 'result-tip';
-            }, 3000);
-        }
-
-        // 绑定事件
-        addCardBtn.addEventListener('click', addCard);
-
-        // 页面加载时加载卡密列表
-        window.addEventListener('load', loadCardList);
+        // 页面加载时自动加载卡密列表
+        window.onload = function() {
+            loadCardList();
+        };
     </script>
 </body>
 </html>
