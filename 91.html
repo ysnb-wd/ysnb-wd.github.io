@@ -4,8 +4,6 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MC辅助 - 作者91</title>
-    <!-- 引入MC像素字体 -->
-    <link href="https://fonts.googleapis.com/css2?family=Minecraftia&display=swap" rel="stylesheet">
     <style>
         :root {
             --mc-sky: #7ec0ee;
@@ -23,9 +21,8 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Minecraftia', sans-serif; /* MC像素字体 */
+            font-family: 'Minecraftia', sans-serif;
         }
-        /* MC主题背景：天空蓝+草地绿（还原游戏地面） */
         body {
             background: linear-gradient(to bottom, var(--mc-sky) 0%, var(--mc-sky) 70%, var(--mc-grass) 70%, var(--mc-grass) 100%);
             height: 100vh;
@@ -33,7 +30,6 @@
             color: var(--text-color);
             touch-action: none;
         }
-        /* 1. MC风格水印（视觉类替换为水印） */
         .mc-watermark {
             position: fixed;
             top: 0;
@@ -43,7 +39,7 @@
             z-index: 0;
             pointer-events: none;
             opacity: 0.12;
-            display: none; /* 默认隐藏，面板控制显示 */
+            display: none;
         }
         .mc-watermark::after {
             content: "MC辅助 | 作者91";
@@ -54,14 +50,8 @@
             font-size: 50px;
             color: #000;
             white-space: nowrap;
-            /* MC像素风重复水印 */
-            text-shadow: 
-                160px 160px 0 #000,
-                160px -160px 0 #000,
-                -160px 160px 0 #000,
-                -160px -160px 0 #000;
+            text-shadow: 160px 160px 0 #000;
         }
-        /* 2. 单悬浮按钮（MC钻石图标） */
         .floating-btn {
             position: fixed;
             width: 60px;
@@ -86,7 +76,6 @@
             transform: scale(0.92);
             box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
         }
-        /* 3. 主面板（MC深色面板风格） */
         .panel {
             position: fixed;
             width: 340px;
@@ -104,7 +93,6 @@
             min-width: 300px;
             min-height: 450px;
         }
-        /* 面板拖动条 */
         .drag-handle {
             width: 100%;
             height: 36px;
@@ -122,7 +110,6 @@
             background: rgba(255,255,255,0.3);
             border-radius: 3px;
         }
-        /* 关闭按钮 */
         .close-btn {
             position: absolute;
             top: 8px;
@@ -144,13 +131,11 @@
         .close-btn:active {
             transform: scale(0.9);
         }
-        /* 面板内容区域 */
         .panel-content {
             flex: 1;
             display: flex;
             overflow: hidden;
         }
-        /* 左侧标签按钮 */
         .tab-buttons {
             width: 85px;
             background: rgba(52, 73, 94, 0.85);
@@ -176,7 +161,6 @@
         .tab-btn:hover:not(.active) {
             background: rgba(61, 86, 110, 0.5);
         }
-        /* 右侧内容页 */
         .tab-content {
             flex: 1;
             padding: 18px;
@@ -188,7 +172,6 @@
         .tab-page.active {
             display: block;
         }
-        /* 4. 卡密验证容器（MC木板风格） */
         .code-container {
             position: absolute;
             top: 50%;
@@ -205,20 +188,19 @@
             z-index: 100;
         }
         .code-title {
-            color: #fff;
-            font-size: 22px;
+            font-size: 24px;
             margin-bottom: 20px;
             text-shadow: 2px 2px 0 #000;
         }
         .code-input {
             width: 100%;
             padding: 12px;
-            background: #f5f5f5;
-            border: 2px solid var(--mc-wood-dark);
+            margin: 10px 0 20px;
+            border: 2px solid #ccc;
             border-radius: 4px;
             font-size: 16px;
-            margin-bottom: 15px;
-            outline: none;
+            background: #f9f9f9;
+            color: #333;
         }
         .code-btn {
             width: 100%;
@@ -226,565 +208,215 @@
             background: var(--mc-green);
             border: 2px solid var(--mc-green-dark);
             border-radius: 4px;
-            color: #fff;
+            color: white;
             font-size: 16px;
             cursor: pointer;
-            text-shadow: 1px 1px 0 #000;
-            transition: all 0.3s;
+            transition: background 0.2s;
         }
-        .code-btn:hover {
+        .code-btn:active {
             background: var(--mc-green-dark);
-            transform: translateY(-2px);
         }
-        .code-result {
+        .code-msg {
             margin-top: 15px;
+            font-size: 14px;
             color: #ffeb3b;
-            font-size: 14px;
-            display: none;
-        }
-        /* 5. 通用组件样式 */
-        /* 开关 */
-        .toggle-container {
-            margin-bottom: 20px;
-        }
-        .toggle-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 14px;
-            color: rgba(255,255,255,0.9);
-        }
-        .toggle-track {
-            width: 60px;
-            height: 30px;
-            background: rgba(52, 73, 94, 0.7);
-            border-radius: 15px;
-            position: relative;
-            cursor: pointer;
-            overflow: hidden;
-        }
-        .toggle-thumb {
-            width: 26px;
-            height: 26px;
-            background: white;
-            border-radius: 50%;
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            transition: transform 0.5s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        .toggle-active-bg {
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 0;
-            height: 100%;
-            background: var(--mc-green);
-            transition: width 0.5s;
-        }
-        .toggle-on .toggle-thumb {
-            transform: translateX(calc(100% + 6px));
-        }
-        .toggle-on .toggle-active-bg {
-            width: 100%;
-        }
-        /* 滑块 */
-        .slider-container {
-            margin: 18px 0;
-        }
-        .slider-label {
-            display: flex;
-            justify-content: space-between;
-            margin-bottom: 8px;
-            font-size: 13px;
-            color: rgba(255,255,255,0.8);
-        }
-        .slider {
-            width: 100%;
-            height: 10px;
-            -webkit-appearance: none;
-            background: #34495e;
-            border-radius: 5px;
-            outline: none;
-        }
-        .slider::-webkit-slider-thumb {
-            -webkit-appearance: none;
-            width: 20px;
-            height: 20px;
-            background: var(--mc-blue);
-            border-radius: 50%;
-            cursor: pointer;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
-        }
-        /* 卡密管理按钮 */
-        .cardmgr-btn {
-            width: 100%;
-            padding: 10px;
-            margin-top: 10px;
-            background: var(--mc-blue);
-            border: none;
-            border-radius: 4px;
-            color: white;
-            font-size: 14px;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-        .cardmgr-btn.danger {
-            background: var(--mc-red);
-        }
-        .cardmgr-btn:hover {
-            opacity: 0.9;
-        }
-        /* 调整大小手柄 */
-        .resize-handle {
-            position: absolute;
-            right: 0;
-            bottom: 0;
-            width: 20px;
-            height: 20px;
-            background: linear-gradient(135deg, transparent 0%, transparent 50%, var(--mc-blue) 50%, var(--mc-blue) 100%);
-            cursor: nwse-resize;
-            z-index: 1001;
-        }
-        /* 关于页面样式 */
-        .about-content {
-            font-size: 14px;
-            line-height: 1.6;
-        }
-        .about-content h3 {
-            margin: 15px 0 8px;
-            color: var(--mc-blue);
-        }
-        .about-content ul {
-            padding-left: 20px;
-            margin-bottom: 15px;
         }
     </style>
 </head>
 <body>
-    <!-- MC水印（视觉类核心） -->
-    <div class="mc-watermark" id="mcWatermark"></div>
-    <!-- 卡密验证容器（初始显示） -->
-    <div class="code-container" id="codeContainer">
-        <h2 class="code-title">MC辅助·卡密验证</h2>
-        <input 
-            type="text" 
-            class="code-input" 
-            placeholder="输入卡密（如：MC-2025-91VIP）" 
-            id="codeInput"
-        />
-        <button class="code-btn" onclick="verifyCode()">激活辅助</button>
-        <p class="code-result" id="codeResult"></p>
-    </div>
-    <!-- 单悬浮按钮 -->
-    <div class="floating-btn" id="floatingBtn">💎</div>
-    <!-- 主面板（卡密验证通过后显示） -->
+    <div class="mc-watermark" id="watermark"></div>
+    <div class="floating-btn" id="floatBtn">☰</div>
     <div class="panel" id="mainPanel">
         <div class="drag-handle">
-            <button class="close-btn" id="closeBtn">×</button>
+            <div class="close-btn" id="closePanel">×</div>
         </div>
-        <div class="resize-handle" id="resizeHandle"></div>
-        
         <div class="panel-content">
-            <!-- 左侧标签按钮 -->
             <div class="tab-buttons">
-                <div class="tab-btn active" data-tab="tab1">ⅠMC功能</div>
-                <div class="tab-btn" data-tab="tab2">Ⅱ属性修改</div>
-                <div class="tab-btn" data-tab="tab3">Ⅲ水印控制</div>
-                <div class="tab-btn" data-tab="tab4">Ⅳ卡密管理</div>
-                <div class="tab-btn" data-tab="tab5">Ⅴ关于作者</div>
+                <div class="tab-btn active" data-tab="tab1">功能1</div>
+                <div class="tab-btn" data-tab="tab2">功能2</div>
+                <div class="tab-btn" data-tab="tab3">卡密管理</div>
             </div>
-            
-            <!-- 右侧内容页 -->
             <div class="tab-content">
-                <!-- 1. MC基础功能页 -->
                 <div class="tab-page active" id="tab1">
-                    <div class="toggle-container">
-                        <div class="toggle-label">
-                            <span>防闪退</span>
-                            <span>OFF</span>
-                        </div>
-                        <div class="toggle-track" id="antiCrashToggle">
-                            <div class="toggle-active-bg"></div>
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                    <div class="toggle-container">
-                        <div class="toggle-label">
-                            <span>满帧率运行</span>
-                            <span>OFF</span>
-                        </div>
-                        <div class="toggle-track" id="maxFpsToggle">
-                            <div class="toggle-active-bg"></div>
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                    <div class="toggle-container">
-                        <div class="toggle-label">
-                            <span>无限背包</span>
-                            <span>OFF</span>
-                        </div>
-                        <div class="toggle-track" id="infiniteInvToggle">
-                            <div class="toggle-active-bg"></div>
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
+                    <h3>功能1面板</h3>
+                    <p>这里是功能1的内容...</p>
                 </div>
-                <!-- 2. MC属性修改页 -->
                 <div class="tab-page" id="tab2">
-                    <div class="slider-container">
-                        <div class="slider-label">
-                            <span>生命值</span>
-                            <span id="healthValue">20（满值）</span>
-                        </div>
-                        <input type="range" min="1" max="100" value="20" class="slider" id="healthSlider">
-                    </div>
-                    <div class="slider-container">
-                        <div class="slider-label">
-                            <span>攻击力</span>
-                            <span id="attackValue">100%</span>
-                        </div>
-                        <input type="range" min="50" max="300" value="100" class="slider" id="attackSlider">
-                    </div>
-                    <div class="slider-container">
-                        <div class="slider-label">
-                            <span>跳跃高度</span>
-                            <span id="jumpValue">100%</span>
-                        </div>
-                        <input type="range" min="50" max="300" value="100" class="slider" id="jumpSlider">
-                    </div>
+                    <h3>功能2面板</h3>
+                    <p>这里是功能2的内容...</p>
                 </div>
-                <!-- 3. 水印控制页（视觉类替换为水印） -->
                 <div class="tab-page" id="tab3">
-                    <div class="toggle-container">
-                        <div class="toggle-label">
-                            <span>显示MC水印</span>
-                            <span>OFF</span>
-                        </div>
-                        <div class="toggle-track" id="watermarkToggle">
-                            <div class="toggle-active-bg"></div>
-                            <div class="toggle-thumb"></div>
-                        </div>
-                    </div>
-                    <div class="slider-container">
-                        <div class="slider-label">
-                            <span>水印透明度</span>
-                            <span id="watermarkAlpha">12%</span>
-                        </div>
-                        <input type="range" min="5" max="30" value="12" class="slider" id="watermarkAlphaSlider">
-                    </div>
-                    <div class="toggle-container">
-                        <div class="toggle-label">
-                            <span>水印旋转</span>
-                            <span id="watermarkRotateVal">-15°</span>
-                        </div>
-                        <div class="slider-container">
-                            <input type="range" min="-30" max="30" value="-15" class="slider" id="watermarkRotateSlider">
-                        </div>
-                    </div>
-                </div>
-                <!-- 4. 云端卡密管理页（已适配云端接口） -->
-                <div class="tab-page" id="tab4">
-                    <h3 style="margin-bottom: 15px; color: var(--mc-blue);">云端卡密管理</h3>
-                    
-                    <!-- 写入卡密（新增类型选择器，适配云端参数） -->
-                    <div style="margin-bottom: 20px;">
-                        <label class="toggle-label" style="justify-content: flex-start;">新卡密：</label>
-                        <input type="text" class="code-input" placeholder="输入新卡密（如：MC-2025-91VIP）" id="newCodeInput">
-                        <select class="code-input" style="margin-top: 8px;" id="newCodeType">
-                            <option value="vip">VIP卡密</option>
-                            <option value="test">测试卡密</option>
+                    <h3>卡密管理</h3>
+                    <div class="code-container" id="cardManage">
+                        <div class="code-title">新增卡密</div>
+                        <input type="text" class="code-input" id="newCard" placeholder="输入卡密（格式：MC-XXXX-XXXX）">
+                        <select class="code-input" id="cardType">
+                            <option value="VIP卡密">VIP卡密</option>
+                            <option value="普通卡密">普通卡密</option>
                         </select>
-                        <button class="cardmgr-btn" onclick="writeCard()">写入卡密到云端</button>
-                    </div>
-                    
-                    <!-- 删除卡密（参数名适配云端） -->
-                    <div>
-                        <label class="toggle-label" style="justify-content: flex-start;">删除卡密：</label>
-                        <input type="text" class="code-input" placeholder="输入要删除的卡密" id="delCodeInput">
-                        <button class="cardmgr-btn danger" onclick="deleteCard()">从云端删除</button>
-                    </div>
-                    
-                    <p class="code-result" id="cardmgrResult" style="margin-top: 15px;"></p>
-                </div>
-                <!-- 5. 关于作者页（作者改为91） -->
-                <div class="tab-page" id="tab5">
-                    <div class="about-content">
-                        <h3>MC辅助 v1.0</h3>
-                        <p>作者：91</p>
-                        <p>适配游戏：我的世界（全版本通用）</p>
-                        
-                        <h3>使用方法：</h3>
-                        <ul>
-                            <li>1. 拖动悬浮按钮可移动位置</li>
-                            <li>2. 点击悬浮按钮展开/关闭面板</li>
-                            <li>3. 面板右下角可调整大小</li>
-                            <li>4. 卡密管理页需云端权限（仅超级用户可用）</li>
-                        </ul>
-                        
-                        <h3>云端地址：</h3>
-                        <p style="color: #94a3b8;">ysnb-wd.github.io/pj.html</p>
-                        <p style="margin-top: 10px; color: #ffeb3b;">提示：卡密存储于云端，验证/管理需联网</p>
+                        <button class="code-btn" id="addCard">添加到云端</button>
+                        <div class="code-msg" id="addMsg"></div>
+                        <div class="code-title">卡密列表</div>
+                        <div id="cardList" style="text-align: left; margin-top: 10px;">
+                            <p>加载中...</p>
+                        </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
+    <div class="code-container" id="codeVerify">
+        <div class="code-title">MC辅助·卡密验证</div>
+        <input type="text" class="code-input" id="cardCode" value="MC-2025-91VIP" placeholder="输入卡密">
+        <button class="code-btn" id="verifyBtn">激活辅助</button>
+        <div class="code-msg" id="verifyMsg">云端连接失败！请检查网络</div>
+    </div>
+
     <script>
-        // 核心常量：云端地址（与pj.html部署地址一致）
+        // ======================
+        // 配置：修改为你的pj.html地址
+        // ======================
         const CLOUD_URL = "https://ysnb-wd.github.io/pj.html";
-        // DOM元素初始化
-        const codeContainer = document.getElementById('codeContainer');
-        const mainPanel = document.getElementById('mainPanel');
-        const floatingBtn = document.getElementById('floatingBtn');
-        const closeBtn = document.getElementById('closeBtn');
-        const mcWatermark = document.getElementById('mcWatermark');
-        const watermarkToggle = document.getElementById('watermarkToggle');
+
         // ======================
-        // 1. 卡密验证（对接云端，参数已对齐）
+        // 卡密验证逻辑（适配转发）
         // ======================
-        async function verifyCode() {
-            const inputCode = document.getElementById('codeInput').value.trim();
-            const resultEle = document.getElementById('codeResult');
-            
-            if (!inputCode || !inputCode.includes('MC-')) {
-                resultEle.textContent = "请按格式输入卡密（如MC-2025-91VIP）！";
-                resultEle.style.display = 'block';
+        document.getElementById('verifyBtn').addEventListener('click', async function() {
+            const code = document.getElementById('cardCode').value.trim();
+            if (!code || !code.includes('MC-')) {
+                document.getElementById('verifyMsg').textContent = "请输入正确格式的卡密（MC-XXXX-XXXX）";
                 return;
             }
-            try {
-                const response = await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ action: 'verify', code: inputCode })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    resultEle.textContent = "激活成功！正在加载辅助...";
-                    resultEle.style.color = "#4ee44e";
-                    resultEle.style.display = 'block';
-                    
-                    setTimeout(() => {
-                        codeContainer.style.display = 'none';
-                        floatingBtn.style.display = 'flex';
-                        mainPanel.style.display = 'flex';
-                        positionPanel();
-                    }, 1500);
-                } else {
-                    resultEle.textContent = "卡密无效！请重试";
-                    resultEle.style.display = 'block';
-                }
-            } catch (err) {
-                resultEle.textContent = "云端连接失败！请检查网络";
-                resultEle.style.display = 'block';
-                console.error('卡密验证错误：', err);
+
+            // 转发请求：用GET参数传递actionData
+            const actionData = { action: 'verify', code };
+            const response = await fetch(
+                `${CLOUD_URL}?actionData=${encodeURIComponent(JSON.stringify(actionData))}`,
+                { method: 'GET' }
+            );
+            const data = await response.json();
+
+            if (data.success) {
+                document.getElementById('verifyMsg').textContent = "激活成功！正在加载辅助...";
+                document.getElementById('verifyMsg').style.color = "#4ee44e";
+                setTimeout(() => {
+                    document.getElementById('codeVerify').style.display = 'none';
+                    document.getElementById('watermark').style.display = 'block';
+                    document.getElementById('floatBtn').style.display = 'flex';
+                    document.getElementById('mainPanel').style.display = 'flex';
+                }, 1500);
+            } else {
+                document.getElementById('verifyMsg').textContent = data.msg || "卡密无效！请重试";
+                document.getElementById('verifyMsg').style.color = "#ffeb3b";
             }
-        }
+        });
+
         // ======================
-        // 2. 云端卡密管理（写入/删除，已适配云端接口）
+        // 卡密管理逻辑（新增+列表，适配转发）
         // ======================
-        async function writeCard() {
-            const newCode = document.getElementById('newCodeInput').value.trim();
-            const newCodeType = document.getElementById('newCodeType').value;
-            const resultEle = document.getElementById('cardmgrResult');
-            
-            if (!newCode || !newCode.includes('MC-')) {
-                resultEle.textContent = "卡密格式错误！需含MC-（如MC-2025-91VIP）";
-                resultEle.style.display = 'block';
+        // 新增卡密
+        document.getElementById('addCard').addEventListener('click', async function() {
+            const cardContent = document.getElementById('newCard').value.trim();
+            const cardType = document.getElementById('cardType').value;
+            if (!cardContent || !cardContent.includes('MC-')) {
+                document.getElementById('addMsg').textContent = "请输入正确格式的卡密（MC-XXXX-XXXX）";
                 return;
             }
-            try {
-                const response = await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    // 动作名+参数完全匹配pj.html云端接口
-                    body: JSON.stringify({ 
-                        action: 'writeCard', 
-                        card: { content: newCode, type: newCodeType } 
-                    })
+
+            const actionData = { action: 'writeCard', card: { content: cardContent, type: cardType, isUsed: false } };
+            const response = await fetch(
+                `${CLOUD_URL}?actionData=${encodeURIComponent(JSON.stringify(actionData))}`,
+                { method: 'GET' }
+            );
+            const data = await response.json();
+
+            document.getElementById('addMsg').textContent = data.msg || (data.success ? "添加成功" : "添加失败");
+            document.getElementById('addMsg').style.color = data.success ? "#4ee44e" : "#ffeb3b";
+            loadCardList(); // 新增后刷新列表
+        });
+
+        // 加载卡密列表
+        async function loadCardList() {
+            const actionData = { action: 'getAllCards' };
+            const response = await fetch(
+                `${CLOUD_URL}?actionData=${encodeURIComponent(JSON.stringify(actionData))}`,
+                { method: 'GET' }
+            );
+            const data = await response.json();
+
+            if (data.success && data.cards.length > 0) {
+                let html = "<table style='width:100%; border-collapse: collapse; margin-top: 10px;'>";
+                html += "<tr style='border-bottom: 1px solid #ccc;'><<th>卡密内容</</th><<th>类型</</th><<th>操作</</th></tr>";
+                data.cards.forEach((card, index) => {
+                    html += `<tr style='border-bottom: 1px solid #ccc;'>
+                        <td>${card.content}</td>
+                        <td>${card.type}</td>
+                        <td><button onclick="deleteCard('${card.content}')" style="background: #e74c3c; color: white; border: none; padding: 4px 8px; border-radius: 4px; cursor: pointer;">删除</button></td>
+                    </tr>`;
                 });
+                html += "</table>";
+                document.getElementById('cardList').innerHTML = html;
+            } else {
+                document.getElementById('cardList').innerHTML = "<p>暂无卡密</p>";
+            }
+        }
+
+        // 删除卡密
+        window.deleteCard = async function(cardContent) {
+            if (confirm(`确定删除卡密 ${cardContent} 吗？`)) {
+                const actionData = { action: 'deleteCard', cardContent };
+                const response = await fetch(
+                    `${CLOUD_URL}?actionData=${encodeURIComponent(JSON.stringify(actionData))}`,
+                    { method: 'GET' }
+                );
                 const data = await response.json();
-                if (data.success) {
-                    resultEle.textContent = "卡密写入成功！云端总数：" + data.totalCount;
-                    resultEle.style.color = "#4ee44e";
-                    newCodeInput.value = ""; // 清空输入
-                } else {
-                    resultEle.textContent = "写入失败：" + (data.msg || "无权限或云端错误");
-                }
-                resultEle.style.display = 'block';
-            } catch (err) {
-                resultEle.textContent = "云端连接失败！检查网络或LeanCloud配置";
-                resultEle.style.display = 'block';
+                alert(data.msg || (data.success ? "删除成功" : "删除失败"));
+                loadCardList(); // 删除后刷新列表
             }
-        }
-        async function deleteCard() {
-            const delCode = document.getElementById('delCodeInput').value.trim();
-            const resultEle = document.getElementById('cardmgrResult');
-            
-            if (!delCode) {
-                resultEle.textContent = "请输入要删除的卡密！";
-                resultEle.style.display = 'block';
-                return;
-            }
-            try {
-                const response = await fetch(CLOUD_URL, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    // 动作名+参数完全匹配pj.html云端接口
-                    body: JSON.stringify({ 
-                        action: 'deleteCard', 
-                        cardContent: delCode 
-                    })
-                });
-                const data = await response.json();
-                if (data.success) {
-                    resultEle.textContent = "卡密删除成功！云端剩余：" + data.totalCount;
-                    resultEle.style.color = "#4ee44e";
-                    delCodeInput.value = ""; // 清空输入
-                } else {
-                    resultEle.textContent = "删除失败：" + (data.msg || "无权限或卡密不存在");
-                }
-                resultEle.style.display = 'block';
-            } catch (err) {
-                resultEle.textContent = "云端连接失败！检查网络或LeanCloud配置";
-                resultEle.style.display = 'block';
-            }
-        }
+        };
+
+        // 页面加载时自动加载卡密列表
+        window.onload = function() {
+            loadCardList();
+        };
+
         // ======================
-        // 3. 悬浮窗与面板控制（原有功能不变）
+        // 面板交互逻辑（原有功能）
         // ======================
-        // 面板定位（悬浮按钮右侧）
-        function positionPanel() {
-            const btnRect = floatingBtn.getBoundingClientRect();
-            let panelLeft = btnRect.left + btnRect.width + 10;
-            let panelTop = btnRect.top;
-            // 防止面板超出屏幕
-            const panelWidth = parseFloat(getComputedStyle(mainPanel).width);
-            if (panelLeft + panelWidth > window.innerWidth) {
-                panelLeft = btnRect.left - panelWidth - 10;
-            }
-            const panelHeight = parseFloat(getComputedStyle(mainPanel).height);
-            if (panelTop + panelHeight > window.innerHeight) {
-                panelTop = Math.max(10, window.innerHeight - panelHeight - 10);
-            }
-            mainPanel.style.left = panelLeft + 'px';
-            mainPanel.style.top = panelTop + 'px';
-        }
-        // 悬浮按钮点击：切换面板显示
-        floatingBtn.addEventListener('click', () => {
-            mainPanel.style.display = mainPanel.style.display === 'flex' ? 'none' : 'flex';
-            if (mainPanel.style.display === 'flex') positionPanel();
+        document.getElementById('floatBtn').addEventListener('click', function() {
+            document.getElementById('mainPanel').style.display = 'flex';
         });
-        // 关闭按钮：隐藏面板
-        closeBtn.addEventListener('click', () => {
-            mainPanel.style.display = 'none';
+        document.getElementById('closePanel').addEventListener('click', function() {
+            document.getElementById('mainPanel').style.display = 'none';
         });
-        // 悬浮按钮拖动
-        let isDraggingBtn = false;
-        let btnStartX, btnStartY, btnInitialX, btnInitialY;
-        floatingBtn.addEventListener('mousedown', (e) => {
-            isDraggingBtn = true;
-            btnStartX = e.clientX;
-            btnStartY = e.clientY;
-            btnInitialX = parseFloat(floatingBtn.style.left) || 20;
-            btnInitialY = parseFloat(floatingBtn.style.top) || 100;
-        });
-        document.addEventListener('mousemove', (e) => {
-            if (!isDraggingBtn) return;
-            const dx = e.clientX - btnStartX;
-            const dy = e.clientY - btnStartY;
-            floatingBtn.style.left = Math.max(10, Math.min(btnInitialX + dx, window.innerWidth - 70)) + 'px';
-            floatingBtn.style.top = Math.max(10, Math.min(btnInitialY + dy, window.innerHeight - 70)) + 'px';
-        });
-        document.addEventListener('mouseup', () => isDraggingBtn = false);
-        // 面板拖动
-        let isDraggingPanel = false;
-        let panelStartX, panelStartY, panelInitialX, panelInitialY;
-        document.querySelector('.drag-handle').addEventListener('mousedown', (e) => {
-            if (e.target === closeBtn) return;
-            isDraggingPanel = true;
-            panelStartX = e.clientX;
-            panelStartY = e.clientY;
-            panelInitialX = parseFloat(mainPanel.style.left) || 0;
-            panelInitialY = parseFloat(mainPanel.style.top) || 0;
-        });
-        document.addEventListener('mousemove', (e) => {
-            if (!isDraggingPanel) return;
-            const dx = e.clientX - panelStartX;
-            const dy = e.clientY - panelStartY;
-            mainPanel.style.left = (panelInitialX + dx) + 'px';
-            mainPanel.style.top = (panelInitialY + dy) + 'px';
-        });
-        document.addEventListener('mouseup', () => isDraggingPanel = false);
-        // ======================
-        // 4. 功能模块初始化（修复水印旋转bug）
-        // ======================
-        // 标签页切换
         document.querySelectorAll('.tab-btn').forEach(btn => {
-            btn.addEventListener('click', () => {
+            btn.addEventListener('click', function() {
+                const tabId = this.getAttribute('data-tab');
                 document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
-                btn.classList.add('active');
-                const tabId = btn.getAttribute('data-tab');
-                document.querySelectorAll('.tab-page').forEach(page => page.classList.remove('active'));
+                document.querySelectorAll('.tab-page').forEach(p => p.classList.remove('active'));
+                this.classList.add('active');
                 document.getElementById(tabId).classList.add('active');
             });
         });
-        // 开关控制（水印、功能开关）
-        // 水印开关
-        watermarkToggle.addEventListener('click', () => {
-            const isOn = watermarkToggle.classList.toggle('toggle-on');
-            const label = watermarkToggle.parentElement.querySelector('.toggle-label span:last-child');
-            label.textContent = isOn ? 'ON' : 'OFF';
-            mcWatermark.style.display = isOn ? 'block' : 'none';
+        // 拖拽功能（简化版）
+        let isDragging = false;
+        let startX, startY, startLeft, startTop;
+        document.getElementById('drag-handle').addEventListener('mousedown', function(e) {
+            isDragging = true;
+            startX = e.clientX;
+            startY = e.clientY;
+            startLeft = parseInt(window.getComputedStyle(document.getElementById('mainPanel')).left);
+            startTop = parseInt(window.getComputedStyle(document.getElementById('mainPanel')).top);
         });
-        // 其他功能开关
-        const toggles = ['antiCrashToggle', 'maxFpsToggle', 'infiniteInvToggle'];
-        toggles.forEach(toggleId => {
-            const toggle = document.getElementById(toggleId);
-            toggle.addEventListener('click', () => {
-                const isOn = toggle.classList.toggle('toggle-on');
-                const label = toggle.parentElement.querySelector('.toggle-label span:last-child');
-                label.textContent = isOn ? 'ON' : 'OFF';
-            });
+        document.addEventListener('mousemove', function(e) {
+            if (!isDragging) return;
+            const deltaX = e.clientX - startX;
+            const deltaY = e.clientY - startY;
+            document.getElementById('mainPanel').style.left = `${startLeft + deltaX}px`;
+            document.getElementById('mainPanel').style.top = `${startTop + deltaY}px`;
         });
-        // 滑块控制（属性、水印参数）
-        // 生命值滑块
-        document.getElementById('healthSlider').addEventListener('input', (e) => {
-            const value = e.target.value;
-            document.getElementById('healthValue').textContent = `${value}（${value > 20 ? '强化' : '正常'}）`;
-        });
-        // 攻击力/跳跃高度滑块
-        document.getElementById('attackSlider').addEventListener('input', (e) => {
-            document.getElementById('attackValue').textContent = `${e.target.value}%`;
-        });
-        document.getElementById('jumpSlider').addEventListener('input', (e) => {
-            document.getElementById('jumpValue').textContent = `${e.target.value}%`;
-        });
-        // 水印透明度滑块
-        document.getElementById('watermarkAlphaSlider').addEventListener('input', (e) => {
-            const value = e.target.value;
-            document.getElementById('watermarkAlpha').textContent = `${value}%`;
-            mcWatermark.style.opacity = value / 100;
-        });
-        // 水印旋转滑块（修复伪元素样式修改bug）
-        document.getElementById('watermarkRotateSlider').addEventListener('input', (e) => {
-            const value = e.target.value;
-            const rotateLabel = document.getElementById('watermarkRotateVal');
-            rotateLabel.textContent = `${value}°`;
-            // 正确修改伪元素transform（通过styleSheets）
-            document.styleSheets[0].insertRule(`
-                #mcWatermark::after {
-                    transform: translate(-50%, -50%) rotate(${value}deg) !important;
-                }
-            `, document.styleSheets[0].cssRules.length);
-        });
-        // ======================
-        // 初始化
-        // ======================
-        window.addEventListener('load', () => {
-            mainPanel.style.display = 'none';
-            floatingBtn.style.display = 'none';
+        document.addEventListener('mouseup', function() {
+            isDragging = false;
         });
     </script>
 </body>
