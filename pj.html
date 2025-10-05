@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MC辅助·多设备云端接口</title>
+    <!-- 引入 LeanCloud SDK（云数据库核心） -->
+    <script src="https://cdn.jsdelivr.net/npm/leancloud-storage@4.17.1/dist/av-min.js"></script>
+    <style>
+        body {
+            background: #f5f5f5;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-family: "Minecraftia", Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+        .api-info {
+            text-align: center;
+            padding: 30px;
+            background: #8b4513; /* MC木板色 */
+            border: 4px solid #5c2e09;
+            border-radius: 8px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.3);
+            color: white;
+        }
+        .api-title {
+            font-size: 22px;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 0 #000;
+        }
+        .api-desc {
+            font-size: 14px;
+            line-height: 1.8;
+            margin-bottom: 15px;
+            text-shadow: 1px 1px 0 #000;
+        }
+        .api-desc span {
+            color: #ffeb3b; /* 黄色高亮 */
+        }
+    </style>
+</head>
+<body>
+    <div class="api-info">
+        <h2 class="api-title">MC辅助·多设备云端接口</h2>
+        <p class="api-desc">✅ 支持多设备同步（手机/电脑/平板共用卡密）</p>
+        <p class="api-desc">📡 接口地址：<span>https://ysnb-wd.github.io/pj.html</span></p>
+        <p class="api-desc">🔧 支持动作：verify（验证）、writeCard（添加）、deleteCard（删除）、getAllCards（获取所有）</p>
+    </div>
+
+    <script>
+        // ======================
+        // 1. 初始化 LeanCloud 云数据库（替换成你的密钥！）
+        // ======================
+        const APP_ID = "MjcndGWckeVm4uoUocnmh9ce-gzGzoHsz";
+        const APP_KEY = "Dx6ngCkRGpn6ljE7moc1i8r1";
+        const SERVER_URL = "https://mjcndgwc.lc-cn-n1-shared.com"; // 如 https://xxx.leancloud.cn
+
+        // 初始化 SDK
+        AV.init({
+            appId: APP_ID,
+            appKey: APP_KEY,
+            serverURL: SERVER_URL
+        });
+
+        // 定义数据表（对应 LeanCloud 中的 MCCards 表）
+        const MCCard = AV.Object.extend('MCCards');
+
+        // ======================
+        // 2. 跨域支持（LeanCloud 已自带，无需额外配置）
+        // ======================
+        function handleCORS() {
+            if (window.event) {
+                window.event.responseHeaders = {
+                    'Access-Control-Allow-Origin': '*', // 允许所有设备跨域访问
+                    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+                    'Access-Control-Allow-Headers': 'Content-Type'
+                };
+                // 处理 OPTIONS 预检请求
+                if (window.event.requestMethod === 'OPTIONS') {
+                    window.event.returnValue = '';
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        // ======================
+        // 3. 解析前端请求数据
+        // ======================
+        function parseRequest() {
+            try {
+                // 解析 POST 请求体
+                const requestBody = decodeURIComponent(window.event.requestBody || '');
+                return JSON.parse(requestBody);
+            } catch (err) {
+                return { success: false, msg: '请求格式错误（需为JSON）' };
+            }
+        }
+
+        // ======================
+        // 4. 核心功能：卡密验证（多设备共用）
+        // ======================
+        async function verifyCard(cardContent) {
+            // 从云数据库查询卡密
+            const query = new AV.Query('MCCards');
+            query.equalTo('content', cardContent); // 匹配卡密内容
+            const result = await query.find(); // 执行查询
+            
+            return {
+                success: result.length > 0, // 有结果则卡密有效
+                msg: result.length > 0 ? '卡密有效' : '卡密无效或已过期'
+            };
+        }
+
+        // ======================
+        // 5. 核心功能：添加卡密到云端（多设备同步）
+        // ======================
+        async function writeCard(newCard) {
+            // 先检查卡密是否已存在
+            const query = new AV.Query('MCCards');
+            query.equalTo('content', newCard.content);
+            const existing = await query.find();
+            
+            if (existing.length > 0) {
+                return { success: false, msg: '卡密已存在（多设备共用，无需重复添加）' };
+            }
+
+            // 新增卡密到云数据库
+            const mcCard = new MCCard();
+            mcCard.set('content', newCard.content); // 卡密内容（如 MC-2025-91VIP）
+            mcCard.set('type', newCard.type); // 卡密类型（vip/test/admin）
+            mcCard.set('isUsed', false); // 是否已使用（默认未使用）
+            await mcCard.save(); // 保存到云端
+
+            // 查询总数量（返回给前端）
+            const totalQuery = new AV.Query('MCCards');
+            const totalCount = await totalQuery.count();
+            
+            return {
+                success: true,
+                msg: '卡密添加成功（所有设备已同步）',
+                totalCount: totalCount
+            };
+        }
+
+        // ======================
+        // 6. 核心功能：从云端删除卡密（多设备同步）
+        // ======================
+        async function deleteCard(cardContent) {
+            // 先查询要删除的卡密
+            const query = new AV.Query('MCCards');
+            query.equalTo('content', cardContent);
+            const cards = await query.find();
+            
+            if (cards.length === 0) {
+                return { success: false, msg: '卡密不存在（多设备已同步，可能已被删除）' };
+            }
+
+            // 执行删除（从云端移除）
+            await AV.Object.destroyAll(cards);
+
+            // 查询剩余数量
+            const totalQuery = new AV.Query('MCCards');
+            const totalCount = await totalQuery.count();
+            
+            return {
+                success: true,
+                msg: '卡密删除成功（所有设备已同步）',
+                totalCount: totalCount
+            };
+        }
+
+        // ======================
+        // 7. 核心功能：获取云端所有卡密（多设备同步）
+        // ======================
+        async function getAllCards() {
+            // 从云端查询所有卡密
+            const query = new AV.Query('MCCards');
+            query.descending('createdAt'); // 按创建时间倒序（最新的在前）
+            const cards = await query.find();
+
+            // 格式化返回数据（适配前端表格）
+            const formattedCards = cards.map(card => ({
+                content: card.get('content'),
+                type: card.get('type'),
+                isUsed: card.get('isUsed'),
+                createTime: card.createdAt.toLocaleString() // 创建时间
+            }));
+
+            return {
+                success: true,
+                cards: formattedCards,
+                totalCount: cards.length
+            };
+        }
+
+        // ======================
+        // 8. 主接口入口（统一处理所有请求）
+        // ======================
+        async function handleApi() {
+            // 处理跨域（优先）
+            if (handleCORS()) return;
+
+            // 解析请求
+            const request = parseRequest();
+            if (!request || !request.action) {
+                window.event.returnValue = JSON.stringify({
+                    success: false,
+                    msg: '缺少必要参数：action（verify/writeCard/deleteCard/getAllCards）'
+                });
+                return;
+            }
+
+            // 根据 action 执行对应功能
+            let response;
+            try {
+                switch (request.action) {
+                    case 'verify':
+                        response = await verifyCard(request.code);
+                        break;
+                    case 'writeCard':
+                        response = await writeCard(request.card);
+                        break;
+                    case 'deleteCard':
+                        response = await deleteCard(request.cardContent);
+                        break;
+                    case 'getAllCards':
+                        response = await getAllCards();
+                        break;
+                    default:
+                        response = { success: false, msg: `未知动作：${request.action}` };
+                }
+            } catch (err) {
+                response = {
+                    success: false,
+                    msg: '云端错误：' + err.message,
+                    error: err.stack
+                };
+            }
+
+            // 返回结果给前端（所有设备都会拿到最新数据）
+            window.event.returnValue = JSON.stringify(response);
+        }
+
+        // ======================
+        // 9. 启动接口（仅在被 POST 请求时触发）
+        // ======================
+        if (window.event && window.event.requestMethod === 'POST') {
+            handleApi();
+        }
+    </script>
+</body>
+</html>

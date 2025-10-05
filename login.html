@@ -3,228 +3,232 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>系统登录</title>
+    <title>MC辅助 - 管理员登录</title>
+    <link href="https://fonts.googleapis.com/css2?family=Minecraftia&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --mc-sky: #7ec0ee;
+            --mc-wood: #8b4513;
+            --mc-wood-dark: #5c2e09;
+            --mc-green: #4CAF50;
+            --mc-blue: #3498db;
+            --text-color: #ecf0f1;
+        }
+
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: "PingFang SC", "Helvetica Neue", Arial, sans-serif;
+            font-family: 'Minecraftia', sans-serif;
         }
-        /* 炫酷背景：动态渐变 */
+
         body {
-            background: linear-gradient(135deg, #667eea, #764ba2, #6b8dd6, #8e37d7);
-            background-size: 400% 400%;
-            animation: bgGradient 15s ease infinite;
+            background: linear-gradient(135deg, var(--mc-sky), #64b5f6);
+            height: 100vh;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            padding: 20px;
+            overflow: hidden;
         }
-        @keyframes bgGradient {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        /* 3D登录框：hover悬浮效果 */
+
+        /* MC风格登录框 */
         .login-container {
-            width: 100%;
+            width: 90%;
             max-width: 420px;
-            background: rgba(255,255,255,0.95);
-            border-radius: 16px;
-            box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
-            backdrop-filter: blur(8px);
-            padding: 40px 30px;
-            transition: transform 0.5s ease, box-shadow 0.5s ease;
-        }
-        .login-container:hover {
-            transform: translateY(-8px) scale(1.02);
-            box-shadow: 0 12px 40px rgba(31, 38, 135, 0.3);
-        }
-        .login-title {
+            background: var(--mc-wood);
+            border: 4px solid var(--mc-wood-dark);
+            border-radius: 12px;
+            padding: 40px 25px;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
             text-align: center;
-            font-size: 24px;
-            color: #333;
-            margin-bottom: 30px;
-            background: linear-gradient(90deg, #667eea, #8e37d7);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
+            position: relative;
         }
-        /* 输入框：聚焦流光特效 */
+
+        /* 登录框顶部装饰（MC红石灯效果） */
+        .login-container::before {
+            content: "🔴";
+            position: absolute;
+            top: 15px;
+            left: 15px;
+            font-size: 20px;
+            animation: redstoneBlink 2s infinite alternate;
+        }
+        @keyframes redstoneBlink {
+            from { opacity: 0.7; }
+            to { opacity: 1; }
+        }
+
+        .login-title {
+            color: white;
+            font-size: 24px;
+            margin-bottom: 30px;
+            text-shadow: 2px 2px 0 #000;
+        }
+
         .form-group {
             margin-bottom: 25px;
             position: relative;
         }
+
         .form-group label {
             display: block;
+            text-align: left;
+            color: #f5f5f5;
             font-size: 14px;
-            color: #666;
             margin-bottom: 8px;
+            text-shadow: 1px 1px 0 #000;
         }
-        .form-group input {
+
+        .form-input {
             width: 100%;
-            padding: 14px 18px;
-            border: 1px solid #ddd;
-            border-radius: 10px;
+            padding: 12px 15px;
+            background: #f5f5f5;
+            border: 2px solid var(--mc-wood-dark);
+            border-radius: 4px;
             font-size: 16px;
             outline: none;
-            transition: all 0.3s ease;
         }
-        .form-group input:focus {
-            border-color: #8e37d7;
-            box-shadow: 0 0 0 3px rgba(142, 55, 215, 0.1);
-        }
-        /* 密码图标：渐变颜色 */
-        .show-pwd-icon {
+
+        /* 密码显示/隐藏图标 */
+        .show-pwd {
             position: absolute;
-            right: 18px;
+            right: 15px;
             top: 50%;
             transform: translateY(-50%);
-            color: #8e37d7;
+            color: var(--mc-wood-dark);
             cursor: pointer;
             font-size: 18px;
-            transition: color 0.3s ease;
         }
-        .show-pwd-icon:hover {
-            color: #667eea;
-        }
+
         .remember-group {
             display: flex;
             align-items: center;
+            justify-content: flex-start;
             margin-bottom: 30px;
+            color: #f5f5f5;
             font-size: 14px;
-            color: #666;
         }
+
         .remember-group input {
             width: 16px;
             height: 16px;
             margin-right: 8px;
-            accent-color: #8e37d7;
+            accent-color: var(--mc-green);
         }
-        /* 登录按钮：渐变+脉冲动画 */
+
         .login-btn {
             width: 100%;
             padding: 14px;
-            background: linear-gradient(90deg, #667eea, #8e37d7);
-            color: #fff;
-            border: none;
-            border-radius: 10px;
+            background: linear-gradient(90deg, var(--mc-green), #2e7d32);
+            border: 2px solid #2e7d32;
+            border-radius: 4px;
+            color: white;
             font-size: 16px;
             cursor: pointer;
-            transition: all 0.3s ease;
-            position: relative;
-            overflow: hidden;
+            text-shadow: 1px 1px 0 #000;
+            transition: all 0.3s;
         }
-        .login-btn::after {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            animation: btnPulse 2s infinite;
-        }
-        @keyframes btnPulse {
-            100% { left: 100%; }
-        }
+
         .login-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 15px rgba(142, 55, 215, 0.3);
+            box-shadow: 0 6px 12px rgba(46, 125, 50, 0.3);
         }
+
         .error-tip {
-            color: #e74c3c;
-            text-align: center;
             margin-top: 15px;
+            color: #ffeb3b;
             font-size: 14px;
             display: none;
-            animation: tipShake 0.5s ease;
-        }
-        @keyframes tipShake {
-            0%, 100% { transform: translateX(0); }
-            25% { transform: translateX(-5px); }
-            75% { transform: translateX(5px); }
         }
     </style>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/font-awesome@4.7.0/css/font-awesome.min.css">
 </head>
 <body>
     <div class="login-container">
-        <h2 class="login-title">系统登录</h2>
+        <h2 class="login-title">MC辅助·管理员登录</h2>
         <form id="loginForm">
             <div class="form-group">
                 <label for="username">账号</label>
-                <input type="text" id="username" placeholder="请输入账号" required>
+                <input type="text" id="username" class="form-input" placeholder="输入管理员账号" required>
             </div>
             <div class="form-group">
                 <label for="password">密码</label>
-                <input type="password" id="password" placeholder="请输入密码" required>
-                <<i class="fa fa-eye-slash show-pwd-icon" id="showPwdIcon"></</i>
+                <input type="password" id="password" class="form-input" placeholder="输入管理员密码" required>
+                <<i class="fa fa-eye-slash show-pwd" id="showPwdIcon"></</i>
             </div>
             <div class="remember-group">
                 <input type="checkbox" id="rememberPwd">
-                <label for="rememberPwd">记住密码</label>
+                <label for="rememberPwd">记住账号密码</label>
             </div>
             <button type="submit" class="login-btn">登录控制中心</button>
-            <div class="error-tip" id="errorTip">账号或密码错误，请重新输入</div>
+            <p class="error-tip" id="errorTip">账号或密码错误，请重试</p>
         </form>
     </div>
 
     <script>
-        // 已登录直接跳转
-        if (localStorage.getItem('isLogin') === 'true') {
+        // 已登录用户直接跳转控制中心
+        if (localStorage.getItem('mcAdminLogin') === 'true') {
             window.location.href = 'control-center.html';
         }
 
-        const username = document.getElementById('username');
-        const password = document.getElementById('password');
+        // DOM元素
+        const usernameInput = document.getElementById('username');
+        const passwordInput = document.getElementById('password');
         const showPwdIcon = document.getElementById('showPwdIcon');
         const rememberPwd = document.getElementById('rememberPwd');
         const loginForm = document.getElementById('loginForm');
         const errorTip = document.getElementById('errorTip');
 
-        // 密码显示/隐藏
-        showPwdIcon.addEventListener('click', () => {
-            const isPwd = password.type === 'password';
-            password.type = isPwd ? 'text' : 'password';
-            showPwdIcon.className = isPwd 
-                ? 'fa fa-eye show-pwd-icon' 
-                : 'fa fa-eye-slash show-pwd-icon';
-        });
-
-        // 预设用户（超级用户+管理员）
-        const users = [
-            { username: 'ys', password: 'nb', role: '超级用户' },
-            { username: '114514', password: '917813', role: '管理员' }
+        // 预设管理员账号（超级用户：91/91admin；普通管理员：admin/123456）
+        const admins = [
+            { username: '91', password: '91admin', role: '超级用户' }, // 可管理卡密
+            { username: 'admin', password: '123456', role: '普通管理员' } // 仅查看卡密
         ];
 
-        // 记住密码填充
-        window.onload = () => {
-            const saved = JSON.parse(localStorage.getItem('savedUser'));
-            if (saved) {
-                username.value = saved.username;
-                password.value = saved.password;
+        // 密码显示/隐藏
+        showPwdIcon.addEventListener('click', () => {
+            const isPwd = passwordInput.type === 'password';
+            passwordInput.type = isPwd ? 'text' : 'password';
+            showPwdIcon.className = isPwd ? 'fa fa-eye show-pwd' : 'fa fa-eye-slash show-pwd';
+        });
+
+        // 记住密码自动填充
+        window.addEventListener('load', () => {
+            const savedAdmin = JSON.parse(localStorage.getItem('savedMCAdmin'));
+            if (savedAdmin) {
+                usernameInput.value = savedAdmin.username;
+                passwordInput.value = savedAdmin.password;
                 rememberPwd.checked = true;
             }
-        };
+        });
 
         // 登录逻辑
-        loginForm.addEventListener('submit', (e) => {
+        loginForm.addEventListener('submit', async (e) => {
             e.preventDefault();
-            const user = users.find(u => 
-                u.username === username.value.trim() && 
-                u.password === password.value.trim()
-            );
-            if (user) {
-                localStorage.setItem('isLogin', 'true');
-                localStorage.setItem('userInfo', JSON.stringify(user));
-                rememberPwd.checked 
-                    ? localStorage.setItem('savedUser', JSON.stringify({ username: user.username, password: user.password }))
-                    : localStorage.removeItem('savedUser');
+            const inputUser = usernameInput.value.trim();
+            const inputPwd = passwordInput.value.trim();
+
+            // 匹配管理员
+            const admin = admins.find(a => a.username === inputUser && a.password === inputPwd);
+            if (admin) {
+                // 存储登录状态和用户信息
+                localStorage.setItem('mcAdminLogin', 'true');
+                localStorage.setItem('mcAdminInfo', JSON.stringify(admin));
+                
+                // 记住密码
+                if (rememberPwd.checked) {
+                    localStorage.setItem('savedMCAdmin', JSON.stringify({
+                        username: admin.username,
+                        password: admin.password
+                    }));
+                } else {
+                    localStorage.removeItem('savedMCAdmin');
+                }
+
+                // 跳转控制中心
                 window.location.href = 'control-center.html';
             } else {
+                // 错误提示
                 errorTip.style.display = 'block';
                 setTimeout(() => errorTip.style.display = 'none', 2000);
             }
