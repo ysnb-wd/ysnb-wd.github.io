@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>91科技卡密验证</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f5f5f5;
+        }
+        .container {
+            background-color: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #303F9F;
+            text-align: center;
+        }
+        .info {
+            background-color: #e3f2fd;
+            padding: 15px;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .result {
+            padding: 15px;
+            margin: 15px 0;
+            border-radius: 5px;
+            text-align: center;
+            font-weight: bold;
+        }
+        .success {
+            background-color: #e8f5e9;
+            color: #2e7d32;
+        }
+        .error {
+            background-color: #ffebee;
+            color: #c62828;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔐 91科技卡密验证系统</h1>
+        
+        <div class="info">
+            <p><strong>服务器状态：</strong> <span id="status">运行中</span></p>
+            <p><strong>功能：</strong> 接收卡密验证请求并返回结果</p>
+            <p><strong>请求方式：</strong> GET</p>
+            <p><strong>参数：</strong> card=卡密内容</p>
+        </div>
+
+        <div id="responseArea">
+            <!-- 验证结果将在这里显示 -->
+        </div>
+    </div>
+
+    <script>
+        // 有效的卡密列表（在实际使用中，这个列表应该存储在数据库中）
+        const validCards = [
+            "91TECH2024VIP",
+            "91TECH888888",
+            "91TECH666666",
+            "91TECH999999",
+            "TECH91VIP2024",
+            "SUPER91TECH",
+            "GOLD91CARD",
+            "PLATINUM91TECH"
+        ];
+
+        // 获取URL参数
+        function getUrlParams() {
+            const params = {};
+            const queryString = window.location.search.substring(1);
+            const pairs = queryString.split('&');
+            
+            for (let i = 0; i < pairs.length; i++) {
+                const pair = pairs[i].split('=');
+                if (pair.length === 2) {
+                    params[decodeURIComponent(pair[0])] = decodeURIComponent(pair[1]);
+                }
+            }
+            return params;
+        }
+
+        // 验证卡密
+        function validateCard(card) {
+            if (!card) {
+                return { valid: false, message: "卡密参数缺失" };
+            }
+            
+            // 检查卡密是否在有效列表中
+            if (validCards.includes(card.toUpperCase())) {
+                return { valid: true, message: "SUCCESS: 卡密验证成功" };
+            } else {
+                return { valid: false, message: "FAIL: 卡密无效或已过期" };
+            }
+        }
+
+        // 显示验证结果
+        function displayResult(result) {
+            const responseArea = document.getElementById('responseArea');
+            
+            if (result.valid) {
+                responseArea.innerHTML = `
+                    <div class="result success">
+                        ✅ ${result.message}
+                    </div>
+                    <p>卡密验证成功！欢迎使用91科技至尊版。</p>
+                `;
+            } else {
+                responseArea.innerHTML = `
+                    <div class="result error">
+                        ❌ ${result.message}
+                    </div>
+                    <p>请检查卡密是否正确，或联系客服获取有效卡密。</p>
+                `;
+            }
+        }
+
+        // 页面加载时处理验证请求
+        window.onload = function() {
+            const params = getUrlParams();
+            const card = params.card;
+            
+            if (card) {
+                const result = validateCard(card);
+                displayResult(result);
+                
+                // 如果是有效的卡密，返回纯文本success供Lua应用识别
+                if (result.valid) {
+                    // 这个响应主要供Lua应用使用
+                    document.body.innerHTML = "SUCCESS: Card validation successful";
+                } else {
+                    document.body.innerHTML = "FAIL: Invalid card";
+                }
+            } else {
+                // 没有卡密参数时显示说明页面
+                document.getElementById('responseArea').innerHTML = `
+                    <div class="result">
+                        ℹ️ 等待验证请求...
+                    </div>
+                    <p>此页面用于91科技应用的卡密验证。请勿直接访问此页面。</p>
+                `;
+            }
+        };
+    </script>
+</body>
+</html>
